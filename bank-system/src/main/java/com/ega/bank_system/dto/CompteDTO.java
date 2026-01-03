@@ -8,58 +8,52 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "Représente un compte bancaire")
 public class CompteDTO {
 
-    @Schema(description = "Numéro du compte bancaire", example = "1234567890", accessMode = Schema.AccessMode.READ_ONLY)
+    @Schema(description = "Numéro du compte bancaire (généré automatiquement)",
+            example = "TN5901234567890123456789",
+            accessMode = Schema.AccessMode.READ_ONLY)
     private String numeroCompte;
 
     @NotNull(message = "Le type de compte est obligatoire")
-    @Schema(description = "Type de compte", example = "COURANT", allowableValues = {"COURANT", "EPARGNE"}, required = true)
+    @Schema(description = "Type de compte",
+            example = "COURANT",
+            allowableValues = {"COURANT", "EPARGNE"},
+            requiredMode = Schema.RequiredMode.REQUIRED)
     private TypeCompte type;
 
-    @Size(max = 100, message = "Le libellé ne doit pas dépasser 100 caractères")
-    @Schema(description = "Libellé ou nom du compte", example = "Compte principal")
-    private String libelle;
-
-    @NotNull(message = "La date de création est obligatoire")
+    @Schema(description = "Date de création du compte (générée automatiquement à la création)",
+            example = "2024-01-15",
+            accessMode = Schema.AccessMode.READ_ONLY)
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @Schema(description = "Date de création du compte", example = "2024-01-15", required = true)
     private LocalDate dateCreation;
 
-    @NotNull(message = "Le solde est obligatoire")
-    @DecimalMin(value = "0.00", message = "Le solde ne peut pas être négatif")
-    @Schema(description = "Solde actuel du compte", example = "5000.00")
+    @Schema(description = "Solde actuel du compte (initialisé à 0 à la création)",
+            example = "0.00",
+            accessMode = Schema.AccessMode.READ_ONLY)
     private BigDecimal solde;
 
-    @NotBlank(message = "La devise est obligatoire")
-    @Size(min = 3, max = 3, message = "La devise doit contenir 3 caractères")
-    @Schema(description = "Devise du compte", example = "EUR", required = true)
-    private String devise;
-
-    @Schema(description = "Statut du compte", example = "ACTIF", accessMode = Schema.AccessMode.READ_ONLY, hidden = true)
-    private String statut;
-
-    @NotNull(message = "Le client est obligatoire")
-    @Schema(description = "ID du client propriétaire du compte", example = "1", required = true)
+    @NotNull(message = "L'identifiant du client propriétaire est obligatoire")
+    @Positive(message = "L'identifiant du client doit être positif")
+    @Schema(description = "ID du client propriétaire du compte",
+            example = "1",
+            requiredMode = Schema.RequiredMode.REQUIRED)
     private Long clientId;
 
-    @Schema(description = "Informations du client", hidden = true)
+    @Schema(description = "Informations du client propriétaire du compte",
+            accessMode = Schema.AccessMode.READ_ONLY)
     private ClientDTO client;
 
-    @Schema(description = "Taux d'intérêt du compte épargne", example = "2.5", hidden = true)
+    @DecimalMin(value = "0.0", message = "Le taux d'intérêt ne peut pas être négatif")
+    @DecimalMax(value = "100.0", message = "Le taux d'intérêt ne peut pas dépasser 100%")
+    @Schema(description = "Taux d'intérêt annuel (uniquement pour les comptes épargne)",
+            example = "2.5",
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private BigDecimal tauxInteret;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Schema(description = "Date de création de l'enregistrement", hidden = true)
-    private LocalDateTime createdAt;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Schema(description = "Date de dernière mise à jour", hidden = true)
-    private LocalDateTime updatedAt;
 }

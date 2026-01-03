@@ -47,20 +47,16 @@ public class CompteServiceImpl implements CompteService {
             compte = CompteCourant.builder()
                     .numeroCompte(numeroCompte)
                     .type(TypeCompte.COURANT)
-                    .libelle(compteDTO.getLibelle())
                     .dateCreation(LocalDate.now())
                     .solde(BigDecimal.ZERO)
-                    .devise(compteDTO.getDevise())
                     .client(client)
                     .build();
         } else {
             compte = CompteEpargne.builder()
                     .numeroCompte(numeroCompte)
                     .type(TypeCompte.EPARGNE)
-                    .libelle(compteDTO.getLibelle())
                     .dateCreation(LocalDate.now())
                     .solde(BigDecimal.ZERO)
-                    .devise(compteDTO.getDevise())
                     .tauxInteret(compteDTO.getTauxInteret() != null ? compteDTO.getTauxInteret() : new BigDecimal("2.5"))
                     .client(client)
                     .build();
@@ -77,6 +73,13 @@ public class CompteServiceImpl implements CompteService {
                 .orElseThrow(() -> new ResourceNotFoundException("Compte non trouvé avec numéro: " + numeroCompte));
 
         return mapToDTO(compte);
+    }
+
+    @Override
+    public List<CompteDTO> getAllComptes() {
+        return compteRepository.findAll().stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -104,7 +107,7 @@ public class CompteServiceImpl implements CompteService {
         Compte compte = compteRepository.findByNumeroCompte(numeroCompte)
                 .orElseThrow(() -> new ResourceNotFoundException("Compte non trouvé avec numéro: " + numeroCompte));
 
-        compte.setStatut("ACTIF");
+        // Note: statut retiré de l'entité, cette méthode pourrait être supprimée
         compteRepository.save(compte);
     }
 
@@ -114,7 +117,7 @@ public class CompteServiceImpl implements CompteService {
         Compte compte = compteRepository.findByNumeroCompte(numeroCompte)
                 .orElseThrow(() -> new ResourceNotFoundException("Compte non trouvé avec numéro: " + numeroCompte));
 
-        compte.setStatut("SUSPENDU");
+        // Note: statut retiré de l'entité, cette méthode pourrait être supprimée
         compteRepository.save(compte);
     }
 
@@ -135,14 +138,9 @@ public class CompteServiceImpl implements CompteService {
         CompteDTO.CompteDTOBuilder builder = CompteDTO.builder()
                 .numeroCompte(compte.getNumeroCompte())
                 .type(compte.getType())
-                .libelle(compte.getLibelle())
                 .dateCreation(compte.getDateCreation())
                 .solde(compte.getSolde())
-                .devise(compte.getDevise())
-                .statut(compte.getStatut())
-                .clientId(compte.getClient().getId())
-                .createdAt(compte.getCreatedAt())
-                .updatedAt(compte.getUpdatedAt());
+                .clientId(compte.getClient().getId());
 
         // Ajouter les champs spécifiques au compte épargne
         if (compte instanceof CompteEpargne) {

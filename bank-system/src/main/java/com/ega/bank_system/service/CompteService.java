@@ -9,6 +9,7 @@ public interface CompteService {
 
     CompteDTO createCompte(CompteDTO compteDTO);
     CompteDTO getCompteByNumero(String numeroCompte);
+    List<CompteDTO> getAllComptes();
     List<CompteDTO> getComptesByClient(Long clientId);
     List<CompteDTO> getComptesByType(TypeCompte type);
     void activateCompte(String numeroCompte);

@@ -143,11 +143,9 @@ public class ClientServiceImpl implements ClientService {
                 .map(compte -> CompteDTO.builder()
                         .numeroCompte(compte.getNumeroCompte())
                         .type(compte.getType())
-                        .libelle(compte.getLibelle())
                         .solde(compte.getSolde())
-                        .devise(compte.getDevise())
-                        .statut(compte.getStatut())
                         .dateCreation(compte.getDateCreation())
+                        .tauxInteret(compte.getTauxInteret())
                         .build())
                 .collect(Collectors.toList());
     }

@@ -4,12 +4,9 @@ import com.ega.bank_system.enums.TypeCompte;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,23 +29,12 @@ public abstract class Compte {
     @Column(name = "type", insertable = false, updatable = false)
     private TypeCompte type;
 
-    @Column(name = "libelle", length = 100)
-    private String libelle;
-
-    @Column(name = "date_creation")
+    @Column(name = "date_creation", nullable = false)
     private LocalDate dateCreation;
 
-    @Column(name = "solde", precision = 15, scale = 2)
+    @Column(name = "solde", precision = 15, scale = 2, nullable = false)
     @Builder.Default
     private BigDecimal solde = BigDecimal.ZERO;
-
-    @Column(name = "devise", length = 3)
-    @Builder.Default
-    private String devise = "TND";
-
-    @Column(name = "statut", length = 20)
-    @Builder.Default
-    private String statut = "ACTIF";
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id", nullable = false)
@@ -58,14 +44,6 @@ public abstract class Compte {
     @Builder.Default
     @OrderBy("dateOperation DESC")
     private List<Transaction> transactions = new ArrayList<>();
-
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 
     public abstract BigDecimal getLimiteRetrait();
     public abstract BigDecimal getTauxInteret();

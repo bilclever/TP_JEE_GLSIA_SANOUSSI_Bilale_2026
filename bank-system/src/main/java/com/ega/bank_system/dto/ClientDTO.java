@@ -50,8 +50,8 @@ public class ClientDTO {
     private String adresse;
 
     @NotBlank(message = "Le numéro de téléphone est obligatoire")
-    @Pattern(regexp = "^[0-9]{8,15}$", message = "Numéro de téléphone invalide")
-    @Schema(description = "Numéro de téléphone", example = "33123456789", required = true)
+    @Pattern(regexp = "^\\+?[0-9]{8,15}$", message = "Numéro de téléphone invalide")
+    @Schema(description = "Numéro de téléphone", example = "+22870214908", required = true)
     private String telephone;
 
     @NotBlank(message = "L'email est obligatoire")

@@ -34,15 +34,63 @@ public class CompteController {
     private final TransactionService transactionService;
 
     @PostMapping
-    @Operation(summary = "Créer un nouveau compte", description = "Crée un nouveau compte bancaire pour un client")
+    @Operation(
+        summary = "Créer un nouveau compte bancaire",
+        description = "Crée un nouveau compte bancaire pour un client existant. Le solde initial est toujours 0. Le numéro de compte et la date de création sont générés automatiquement."
+    )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Compte créé avec succès"),
-        @ApiResponse(responseCode = "400", description = "Données invalides"),
-        @ApiResponse(responseCode = "404", description = "Client non trouvé")
+        @ApiResponse(
+            responseCode = "201",
+            description = "Compte créé avec succès",
+            content = @Content(schema = @Schema(implementation = CompteDTO.class))
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Données de création invalides (type de compte manquant ou ID client invalide)"
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Client avec l'ID spécifié non trouvé"
+        )
     })
-    public ResponseEntity<CompteDTO> createCompte(@Valid @RequestBody CompteDTO compteDTO) {
+    public ResponseEntity<CompteDTO> createCompte(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                description = "Informations du compte à créer (type et clientId requis)",
+                required = true,
+                content = @Content(
+                    schema = @Schema(implementation = CompteDTO.class),
+                    examples = {
+                        @io.swagger.v3.oas.annotations.media.ExampleObject(
+                            name = "Compte Courant",
+                            value = "{\"type\": \"COURANT\", \"clientId\": 1}",
+                            description = "Création d'un compte courant"
+                        ),
+                        @io.swagger.v3.oas.annotations.media.ExampleObject(
+                            name = "Compte Épargne",
+                            value = "{\"type\": \"EPARGNE\", \"clientId\": 1, \"tauxInteret\": 2.5}",
+                            description = "Création d'un compte épargne avec taux d'intérêt"
+                        )
+                    }
+                )
+            )
+            @Valid @RequestBody CompteDTO compteDTO) {
         CompteDTO createdCompte = compteService.createCompte(compteDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCompte);
+    }
+
+    @GetMapping
+    @Operation(
+        summary = "Lister tous les comptes",
+        description = "Récupère la liste de tous les comptes bancaires enregistrés dans le système"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Liste des comptes récupérée avec succès",
+        content = @Content(schema = @Schema(implementation = CompteDTO.class))
+    )
+    public ResponseEntity<List<CompteDTO>> getAllComptes() {
+        List<CompteDTO> comptes = compteService.getAllComptes();
+        return ResponseEntity.ok(comptes);
     }
 
     @GetMapping("/{numeroCompte}")
