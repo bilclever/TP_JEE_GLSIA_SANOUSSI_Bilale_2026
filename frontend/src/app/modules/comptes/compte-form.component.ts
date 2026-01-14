@@ -72,6 +72,27 @@ import { Observable, debounceTime, switchMap, startWith } from 'rxjs';
     .full-width {
       width: 100%;
     }
+    ::ng-deep .mat-mdc-option-text {
+      color: #000000 !important;
+    }
+    ::ng-deep .mdc-list-item__primary-text {
+      color: #000000 !important;
+    }
+    ::ng-deep .mat-mdc-select-panel {
+      background-color: #ffffff !important;
+    }
+    ::ng-deep .mat-mdc-option {
+      background-color: #ffffff !important;
+    }
+    ::ng-deep .mat-mdc-option:hover {
+      background-color: #f5f5f5 !important;
+    }
+    ::ng-deep .mat-autocomplete-panel {
+      background-color: #ffffff !important;
+    }
+    ::ng-deep .cdk-overlay-pane {
+      background-color: #ffffff !important;
+    }
   `]
 })
 export class CompteFormComponent implements OnInit {

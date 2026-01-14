@@ -1,7 +1,8 @@
 // compte.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, forkJoin, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 export interface Compte {
@@ -25,6 +26,10 @@ export interface Compte {
 export interface CompteCreateRequest {
   type: 'COURANT' | 'EPARGNE';
   clientId: number;
+  libelle?: string;
+  dateCreation?: string;
+  solde?: number;
+  devise?: string;
 }
 
 export interface CompteUpdateRequest {
@@ -52,9 +57,15 @@ export class CompteService {
 
   constructor(private http: HttpClient) {}
 
-  // Liste de comptes
-  getAllComptes(page = 0, size = 10, sort = 'id,desc'): Observable<any> {
-    return this.http.get<any>(this.API_URL);
+  // Liste de tous les comptes (par type)
+  getAllComptes(page = 0, size = 1000): Observable<Compte[]> {
+    // Récupérer les comptes COURANT et EPARGNE et les combiner
+    return forkJoin({
+      courant: this.getComptesByType('COURANT').pipe(catchError(() => of([]))),
+      epargne: this.getComptesByType('EPARGNE').pipe(catchError(() => of([])))
+    }).pipe(
+      map(({ courant, epargne }) => [...courant, ...epargne])
+    );
   }
 
   getCompteByNumero(numeroCompte: string): Observable<Compte> {

@@ -14,7 +14,7 @@ import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js';
 import { TransactionService } from '../../core/services/transaction.service';
 import { ClientService } from '../../core/services/client.service';
-import { CompteService } from '../../core/services/compte.service';
+import { CompteService, Compte } from '../../core/services/compte.service';
 import { ExportService } from '../../core/services/export.service';
 import { ToastrService } from 'ngx-toastr';
 import { forkJoin, of } from 'rxjs';
@@ -596,7 +596,7 @@ export class DashboardComponent implements OnInit {
       comptes: this.compteService.getAllComptes(0, 1000).pipe(catchError(() => of([])))
     }).subscribe({
       next: ({ clients, comptes }) => {
-        const comptesList = Array.isArray(comptes) ? comptes : (comptes?.content || []);
+        const comptesList = Array.isArray(comptes) ? comptes : [];
 
         this.kpis.totalClients = clients.length || 0;
         this.kpis.totalComptes = comptesList.length || 0;
@@ -695,12 +695,12 @@ export class DashboardComponent implements OnInit {
 
   loadComptesData(): void {
     this.compteService.getAllComptes(0, 1000).subscribe({
-      next: (comptesResponse: any) => {
-        const comptes = Array.isArray(comptesResponse) ? comptesResponse : (comptesResponse.content || []);
+      next: (comptes: Compte[]) => {
+        const comptesData = Array.isArray(comptes) ? comptes : [];
         
         // Grouper par mois de création
         const comptesParMois: { [key: string]: number } = {};
-        comptes.forEach((c: any) => {
+        comptesData.forEach((c: any) => {
           const date = new Date(c.createdAt || c.dateCreation);
           const mois = date.toLocaleDateString('fr-FR', { month: 'short', year: '2-digit' });
           comptesParMois[mois] = (comptesParMois[mois] || 0) + 1;
@@ -727,12 +727,12 @@ export class DashboardComponent implements OnInit {
 
         // Charger les comptes pour calculer le solde par client
         this.compteService.getAllComptes(0, 1000).subscribe({
-          next: (comptesResponse: any) => {
-            const comptes = Array.isArray(comptesResponse) ? comptesResponse : (comptesResponse.content || []);
+          next: (comptes: Compte[]) => {
+            const comptesData = Array.isArray(comptes) ? comptes : [];
 
             // Calculer le solde par client
             const soldeParClient: { [key: number]: number } = {};
-            comptes.forEach((c: any) => {
+            comptesData.forEach((c: any) => {
               if (c.clientId) {
                 soldeParClient[c.clientId] = (soldeParClient[c.clientId] || 0) + (c.solde || 0);
               }

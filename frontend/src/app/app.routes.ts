@@ -5,6 +5,7 @@ import { ClientListComponent } from './shared/components/client-list.component';
 import { ComptesListComponent } from './modules/comptes/comptes-list.component';
 import { OperationsComponent } from './modules/operations/operations.component';
 import { authGuard } from './core/guards/auth.guard';
+import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   {
@@ -24,17 +25,20 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         loadComponent: () => import('./shared/components/dashboard.component').then(m => m.DashboardComponent),
-        data: { title: 'Tableau de bord' }
+        canActivate: [roleGuard],
+        data: { title: 'Tableau de bord', roles: ['ADMIN'] }
       },
       {
         path: 'clients',
         component: ClientListComponent,
-        data: { title: 'Gestion des clients' }
+        canActivate: [roleGuard],
+        data: { title: 'Gestion des clients', roles: ['ADMIN'] }
       },
       {
         path: 'comptes',
         component: ComptesListComponent,
-        data: { title: 'Gestion des comptes' }
+        canActivate: [roleGuard],
+        data: { title: 'Gestion des comptes', roles: ['ADMIN'] }
       },
       {
         path: 'operations',
@@ -45,6 +49,17 @@ export const routes: Routes = [
         path: 'transactions',
         loadComponent: () => import('./modules/transactions/transactions-list.component').then(m => m.TransactionsListComponent),
         data: { title: 'Transactions' }
+      },
+      {
+        path: 'parametres',
+        loadComponent: () => import('./modules/parametres/parametres.component').then(m => m.ParametresComponent),
+        canActivate: [roleGuard],
+        data: { title: 'Paramètres', roles: ['ADMIN'] }
+      },
+      {
+        path: 'profil',
+        loadComponent: () => import('./modules/profil/profil.component').then(m => m.ProfilComponent),
+        data: { title: 'Mon Profil' }
       }
     ]
   },

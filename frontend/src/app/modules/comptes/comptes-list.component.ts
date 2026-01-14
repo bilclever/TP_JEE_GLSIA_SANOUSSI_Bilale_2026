@@ -350,8 +350,8 @@ export class ComptesListComponent implements OnInit, AfterViewInit {
     this.compteService.getAllComptes(0, 1000).subscribe({
       next: (response: any) => {
         console.log('Comptes response:', response);
-        // L'API retourne un tableau direct, pas un objet paginé
-        const comptes = Array.isArray(response) ? response : (response.content || []);
+        // L'API retourne maintenant un tableau direct de Compte[]
+        const comptes = Array.isArray(response) ? response : [];
         console.log('Number of comptes:', comptes.length);
         
         // Charger les informations des clients pour chaque compte

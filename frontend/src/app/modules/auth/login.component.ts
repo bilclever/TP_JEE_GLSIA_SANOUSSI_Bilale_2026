@@ -33,12 +33,11 @@ import { ToastrService } from 'ngx-toastr';
         <mat-card class="login-card">
           <mat-card-header>
             <div class="header-content">
-              <div class="demo-badge">MODE DÉMO</div>
               <div class="logo">
                 <mat-icon>account_balance</mat-icon>
               </div>
               <h1>Banque Ega</h1>
-              <p>Connexion à votre espace</p>
+              <p>Connexion sécurisée</p>
             </div>
           </mat-card-header>
 
@@ -83,11 +82,7 @@ import { ToastrService } from 'ngx-toastr';
             </form>
           </mat-card-content>
 
-          <mat-card-footer>
-            <p class="footer-text">
-              Pas encore de compte ? <a href="#" routerLink="/register">S'inscrire</a>
-            </p>
-          </mat-card-footer>
+          
         </mat-card>
 
         <div class="info-section">
@@ -129,18 +124,6 @@ import { ToastrService } from 'ngx-toastr';
       text-align: center;
       width: 100%;
       margin-bottom: 24px;
-    }
-
-    .demo-badge {
-      display: inline-block;
-      background-color: #ff9800;
-      color: white;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      margin-bottom: 12px;
-      letter-spacing: 0.5px;
     }
 
     .logo {
@@ -303,11 +286,10 @@ export class LoginComponent implements OnInit {
       this.router.navigate(['/dashboard']);
     }
 
-    // Pré-remplir le formulaire en mode DÉMO
     this.loginForm = this.fb.group({
-      username: ['admin', Validators.required],
-      password: ['demo123', Validators.required],
-      rememberMe: [true]
+      username: ['', Validators.required],
+      password: ['', Validators.required],
+      rememberMe: [false]
     });
   }
 
@@ -324,7 +306,8 @@ export class LoginComponent implements OnInit {
         },
         error: (error) => {
           this.isLoading = false;
-          this.toastr.error('Nom d\'utilisateur ou mot de passe incorrect', 'Erreur de connexion');
+          const message = error?.error?.message || 'Nom d\'utilisateur ou mot de passe incorrect';
+          this.toastr.error(message, 'Erreur de connexion');
         }
       });
     }

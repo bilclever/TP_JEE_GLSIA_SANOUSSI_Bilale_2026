@@ -249,21 +249,17 @@ interface Transaction {
                     <mat-icon>more_vert</mat-icon>
                   </button>
                   <mat-menu #actionMenu="matMenu">
-                    <button mat-menu-item (click)="viewDetails(transaction)">
-                      <mat-icon>visibility</mat-icon>
-                      Détails
+                    <button mat-menu-item 
+                            *ngIf="transaction.status !== 'ANNULEE'"
+                            (click)="cancelTransaction(transaction)">
+                      <mat-icon>cancel</mat-icon>
+                      Annuler
                     </button>
                     <button mat-menu-item 
                             *ngIf="transaction.status === 'EN_ATTENTE'"
                             (click)="validateTransaction(transaction)">
                       <mat-icon>check_circle</mat-icon>
                       Valider
-                    </button>
-                    <button mat-menu-item 
-                            *ngIf="transaction.status === 'EN_ATTENTE'"
-                            (click)="cancelTransaction(transaction)">
-                      <mat-icon>cancel</mat-icon>
-                      Annuler
                     </button>
                     <button mat-menu-item (click)="printReceipt(transaction)">
                       <mat-icon>print</mat-icon>
@@ -466,7 +462,7 @@ export class TransactionsListComponent implements OnInit {
     // Charger tous les comptes d'abord
     this.compteService.getAllComptes(0, 1000).subscribe({
       next: (comptesResponse: any) => {
-        const comptes = Array.isArray(comptesResponse) ? comptesResponse : (comptesResponse.content || []);
+        const comptes = Array.isArray(comptesResponse) ? comptesResponse : [];
 
         if (!comptes.length) {
           this.transactions = [];
@@ -613,6 +609,13 @@ export class TransactionsListComponent implements OnInit {
       );
     }
 
+    // Trier par date décroissante (plus récentes en premier)
+    filtered.sort((a, b) => {
+      const dateA = new Date(a.dateTransaction).getTime();
+      const dateB = new Date(b.dateTransaction).getTime();
+      return dateB - dateA;
+    });
+
     // Afficher toutes les transactions filtrées
     this.displayedTransactions = filtered;
     
@@ -685,10 +688,17 @@ export class TransactionsListComponent implements OnInit {
   }
 
   cancelTransaction(transaction: Transaction): void {
-    if (confirm(`Annuler la transaction ${transaction.reference} ?`)) {
-      // Appel API pour annulation
-      this.toastr.warning('Transaction annulée');
-      this.loadTransactions();
+    const raison = prompt(`Annuler la transaction ${transaction.reference}\n\nRaison (optionnelle):`);
+    if (raison !== null) {
+      this.transactionService.annulerTransaction(transaction.id, raison || undefined).subscribe({
+        next: (response) => {
+          this.toastr.success(response || 'Transaction annulée avec succès');
+          this.loadTransactions();
+        },
+        error: (err) => {
+          this.toastr.error(err?.error || 'Échec de l\'annulation de la transaction');
+        }
+      });
     }
   }
 

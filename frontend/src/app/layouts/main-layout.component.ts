@@ -43,17 +43,17 @@ import { filter } from 'rxjs/operators';
         </div>
 
         <mat-nav-list>
-          <a mat-list-item routerLink="/dashboard" routerLinkActive="active">
+          <a mat-list-item *ngIf="isAdmin" routerLink="/dashboard" routerLinkActive="active">
             <mat-icon matListItemIcon>dashboard</mat-icon>
             <span matListItemTitle>Tableau de bord</span>
           </a>
 
-          <a mat-list-item routerLink="/clients" routerLinkActive="active">
+          <a mat-list-item *ngIf="isAdmin" routerLink="/clients" routerLinkActive="active">
             <mat-icon matListItemIcon>people</mat-icon>
             <span matListItemTitle>Clients</span>
           </a>
 
-          <a mat-list-item routerLink="/comptes" routerLinkActive="active">
+          <a mat-list-item *ngIf="isAdmin" routerLink="/comptes" routerLinkActive="active">
             <mat-icon matListItemIcon>account_balance_wallet</mat-icon>
             <span matListItemTitle>Comptes</span>
           </a>
@@ -70,7 +70,7 @@ import { filter } from 'rxjs/operators';
 
           <mat-divider></mat-divider>
 
-          <a mat-list-item routerLink="/parametres" routerLinkActive="active">
+          <a mat-list-item *ngIf="isAdmin" routerLink="/parametres" routerLinkActive="active">
             <mat-icon matListItemIcon>settings</mat-icon>
             <span matListItemTitle>Paramètres</span>
           </a>
@@ -119,8 +119,8 @@ import { filter } from 'rxjs/operators';
       <div class="user-menu-header">
         <mat-icon>account_circle</mat-icon>
         <div>
-          <div class="user-name">{{currentUser?.firstName}} {{currentUser?.lastName}}</div>
-          <div class="user-role">{{currentUser?.role}}</div>
+          <div class="user-name">{{currentUser?.firstName || currentUser?.username}} {{currentUser?.lastName || ''}}</div>
+          <div class="user-role">{{currentUser?.role || 'Utilisateur'}}</div>
         </div>
       </div>
       <mat-divider></mat-divider>
@@ -128,7 +128,7 @@ import { filter } from 'rxjs/operators';
         <mat-icon>person</mat-icon>
         <span>Mon profil</span>
       </button>
-      <button mat-menu-item routerLink="/parametres">
+      <button mat-menu-item *ngIf="isAdmin" routerLink="/parametres">
         <mat-icon>settings</mat-icon>
         <span>Paramètres</span>
       </button>
@@ -140,17 +140,34 @@ import { filter } from 'rxjs/operators';
     </mat-menu>
   `,
   styles: [`
+    :host {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+
     .sidenav-container {
-      height: 100vh;
-      overflow: hidden;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      margin: 0;
+      padding: 0;
     }
 
     .sidenav {
       width: 260px;
+      height: 100%;
       background: #2c3e50;
       color: white;
       overflow-y: auto;
       overflow-x: hidden;
+      margin: 0;
+      padding: 0;
     }
 
     @media (max-width: 768px) {
@@ -223,8 +240,16 @@ import { filter } from 'rxjs/operators';
 
     .main-content {
       display: flex;
+      display: -ms-flexbox;
       flex-direction: column;
-      height: 100vh;
+      -ms-flex-direction: column;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      margin: 0;
+      padding: 0;
       overflow: hidden;
     }
 
@@ -359,16 +384,24 @@ import { filter } from 'rxjs/operators';
 
     ::ng-deep .mat-mdc-menu-panel {
       min-width: 300px !important;
+      background-color: #ffffff !important;
     }
 
     ::ng-deep .mat-mdc-menu-item {
       min-height: 48px !important;
       padding: 12px 16px !important;
       white-space: normal !important;
+      color: #000000 !important;
+      background-color: #ffffff !important;
+    }
+
+    ::ng-deep .mat-mdc-menu-item:hover {
+      background-color: #f5f5f5 !important;
     }
 
     ::ng-deep .mat-mdc-menu-item mat-icon {
       margin-right: 16px !important;
+      color: #000000 !important;
     }
   `]
 })
@@ -389,6 +422,11 @@ export class MainLayoutComponent implements OnInit {
     '/parametres': 'Paramètres',
     '/profil': 'Mon Profil'
   };
+
+  get isAdmin(): boolean {
+    const role = (this.currentUser?.role || '').toString().toUpperCase();
+    return role === 'ADMIN';
+  }
 
   constructor(
     public authService: AuthService,

@@ -7,11 +7,11 @@ import { CookieService } from 'ngx-cookie-service';
 import { environment } from '../../../environments/environment';
 
 export interface User {
-  id: number;
+  id?: number;
   username: string;
-  email: string;
-  firstName: string;
-  lastName: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
   role: string;
   clientId?: number;
   profileImageUrl?: string;
@@ -19,13 +19,12 @@ export interface User {
 }
 
 export interface AuthResponse {
-  token: string;
-  refreshToken: string;
-  tokenType: string;
-  expiresIn: number;
-  user: User;
-  twoFactorRequired: boolean;
-  message?: string;
+  username: string;
+  role: string;
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+  expires_in?: number;
 }
 
 export interface LoginRequest {
@@ -43,6 +42,13 @@ export interface RegisterRequest {
   firstName: string;
   lastName: string;
   phoneNumber?: string;
+  role?: string;
+}
+
+export interface ChangePasswordRequest {
+  oldPassword: string;
+  newPassword: string;
+  confirmPassword: string;
 }
 
 @Injectable({
@@ -52,9 +58,6 @@ export class AuthService {
   private readonly API_URL = `${environment.apiUrl}/v1/auth`;
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
-  
-  // Mode DEMO - désactiver l'authentification pour le développement
-  private readonly DEMO_MODE = true;
 
   constructor(
     private http: HttpClient,
@@ -62,53 +65,21 @@ export class AuthService {
     private cookieService: CookieService
   ) {
     this.loadUserFromStorage();
-    // En mode DEMO, créer un utilisateur fictif
-    if (this.DEMO_MODE) {
-      this.initDemoUser();
-    }
   }
 
   login(credentials: LoginRequest): Observable<AuthResponse> {
-    // MODE DEMO: Accepter n'importe quelles credentials et retourner un utilisateur fictif
-    if (this.DEMO_MODE) {
-      const demoResponse: AuthResponse = {
-        token: 'demo_token_' + Date.now(),
-        refreshToken: 'demo_refresh_' + Date.now(),
-        tokenType: 'Bearer',
-        expiresIn: 86400000, // 24 heures
-        user: {
-          id: 1,
-          username: credentials.username || 'demo_user',
-          email: 'demo@banqueega.tn',
-          firstName: 'Admin',
-          lastName: 'Demo',
-          role: 'ADMIN',
-          phoneNumber: '+216 98 765 432'
-        },
-        twoFactorRequired: false,
-        message: 'Login successful (DEMO MODE)'
-      };
-      
-      this.handleAuthentication(demoResponse);
-      return new Observable(observer => {
-        observer.next(demoResponse);
-        observer.complete();
-      });
-    }
-
-    // Mode production: utiliser l'API réelle
     return this.http.post<AuthResponse>(`${this.API_URL}/login`, credentials)
       .pipe(
-        tap(response => {
-          if (!response.twoFactorRequired) {
-            this.handleAuthentication(response);
-          }
-        })
+        tap(response => this.handleAuthentication(response))
       );
   }
 
   register(userData: RegisterRequest): Observable<any> {
     return this.http.post(`${this.API_URL}/register`, userData);
+  }
+
+  changePassword(passwordData: ChangePasswordRequest): Observable<string> {
+    return this.http.post(`${this.API_URL}/change-password`, passwordData, { responseType: 'text' });
   }
 
   verifyTwoFactor(code: string): Observable<AuthResponse> {
@@ -121,7 +92,7 @@ export class AuthService {
   logout(): void {
     const refreshToken = this.cookieService.get('refresh_token');
     if (refreshToken) {
-      this.http.post(`${this.API_URL}/logout`, { refreshToken }).subscribe();
+      this.http.post(`${this.API_URL}/logout`, { refresh_token: refreshToken }).subscribe();
     }
     
     this.clearStorage();
@@ -146,7 +117,7 @@ export class AuthService {
 
   refreshToken(): Observable<AuthResponse> {
     const refreshToken = this.cookieService.get('refresh_token');
-    return this.http.post<AuthResponse>(`${this.API_URL}/refresh`, { refreshToken })
+    return this.http.post<AuthResponse>(`${this.API_URL}/refresh`, { refresh_token: refreshToken })
       .pipe(
         tap(response => this.handleAuthentication(response, false))
       );
@@ -167,26 +138,43 @@ export class AuthService {
   }
 
   private handleAuthentication(response: AuthResponse, isLogin: boolean = true): void {
-    // Stocker les tokens
-    localStorage.setItem('access_token', response.token);
-    localStorage.setItem('token_expiry', (Date.now() + response.expiresIn).toString());
-    
-    // Stocker le refresh token dans un cookie sécurisé
+    const accessToken = response.access_token;
+    const refreshToken = response.refresh_token;
+
+    const accessPayload = this.parseJwt(accessToken);
+    const accessExpiry = accessPayload?.exp ? accessPayload.exp * 1000 : Date.now() + (response.expires_in || 3600) * 1000;
+
+    localStorage.setItem('access_token', accessToken);
+    localStorage.setItem('token_type', response.token_type || 'Bearer');
+    localStorage.setItem('token_expiry', accessExpiry.toString());
+
+    const refreshPayload = this.parseJwt(refreshToken);
+    const refreshExpiryDays = refreshPayload?.exp
+      ? Math.max(1, (refreshPayload.exp * 1000 - Date.now()) / (1000 * 60 * 60 * 24))
+      : 7;
+
     this.cookieService.set(
       'refresh_token',
-      response.refreshToken,
-      response.expiresIn / 1000 / 60 / 60 / 24, // en jours
+      refreshToken,
+      refreshExpiryDays,
       '/',
       environment.domain,
       environment.production,
       'Strict'
     );
-    
-    // Stocker les informations utilisateur
-    localStorage.setItem('user', JSON.stringify(response.user));
-    this.currentUserSubject.next(response.user);
-    
-    // Rediriger après login
+
+    const user: User = {
+      id: accessPayload?.sub ? Number(accessPayload.sub) : undefined,
+      username: response.username,
+      firstName: accessPayload?.firstName,
+      lastName: accessPayload?.lastName,
+      email: accessPayload?.email,
+      role: response.role
+    };
+
+    localStorage.setItem('user', JSON.stringify(user));
+    this.currentUserSubject.next(user);
+
     if (isLogin) {
       this.router.navigate(['/dashboard']);
     }
@@ -206,6 +194,7 @@ export class AuthService {
 
   private clearStorage(): void {
     localStorage.removeItem('access_token');
+    localStorage.removeItem('token_type');
     localStorage.removeItem('token_expiry');
     localStorage.removeItem('user');
     this.cookieService.delete('refresh_token', '/', environment.domain);
@@ -225,27 +214,5 @@ export class AuthService {
     } catch (e) {
       return null;
     }
-  }
-
-  private initDemoUser(): void {
-    // Créer un utilisateur fictif pour le mode démo
-    const demoUser: User = {
-      id: 1,
-      username: 'admin',
-      email: 'admin@banqueega.tn',
-      firstName: 'Admin',
-      lastName: 'Système',
-      role: 'ADMIN',
-      phoneNumber: '+216 98 765 432',
-      profileImageUrl: 'https://via.placeholder.com/150'
-    };
-
-    // Stocker le token fictif
-    const demoToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwibmFtZSI6IkFkbWluIERlbW8iLCJpYXQiOjE1MTYyMzkwMjIsImV4cCI6OTk5OTk5OTk5OX0.demo_token';
-    localStorage.setItem('access_token', demoToken);
-    localStorage.setItem('user', JSON.stringify(demoUser));
-    localStorage.setItem('token_expiry', (Date.now() + 86400000).toString());
-    
-    this.currentUserSubject.next(demoUser);
   }
 }

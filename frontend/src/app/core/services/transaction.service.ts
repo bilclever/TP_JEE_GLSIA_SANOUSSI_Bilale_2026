@@ -93,6 +93,11 @@ export class TransactionService {
     return this.http.get<Transaction>(`${this.API_URL}/${id}`);
   }
 
+  annulerTransaction(transactionId: number, raison?: string): Observable<string> {
+    const params = raison ? new HttpParams().set('raison', raison) : undefined;
+    return this.http.post(`${this.API_URL}/transactions/${transactionId}/annuler`, {}, { params, responseType: 'text' });
+  }
+
   getTransactionsByCompteId(compteId: number, page = 0, size = 10): Observable<PaginatedResponse<Transaction>> {
     const params = new HttpParams()
       .set('page', page.toString())
@@ -147,10 +152,6 @@ export class TransactionService {
       description,
       typeTransaction: 'VIREMENT'
     });
-  }
-
-  annulerTransaction(id: number): Observable<Transaction> {
-    return this.http.patch<Transaction>(`${this.API_URL}/${id}/annuler`, {});
   }
 
   validerTransaction(id: number): Observable<Transaction> {
