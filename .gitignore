@@ -1,0 +1,14 @@
+# Base de données
+*.mv.db
+*.trace.db
+
+# Backend (Java/Spring)
+target/
+.gradle/
+.idea/
+*.class
+
+# Frontend
+node_modules/
+dist/
+.env
