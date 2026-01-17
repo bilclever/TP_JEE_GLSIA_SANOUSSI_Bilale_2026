@@ -1,0 +1,495 @@
+{
+  "info": {
+    "name": "Bank System EGA - Security Tests",
+    "description": "Collection de tests pour la sécurité du système bancaire EGA",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login as Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login as Agent",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"agent\",\n  \"password\": \"agent123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "logout"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register New Agent (Admin Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"agent2\",\n  \"email\": \"agent2@ega-bank.tn\",\n  \"password\": \"agent2123\",\n  \"role\": \"AGENT\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"oldPassword\": \"admin123\",\n  \"newPassword\": \"newAdmin123\",\n  \"confirmPassword\": \"newAdmin123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/change-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "change-password"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{refreshToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "refresh"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Account Management",
+      "item": [
+        {
+          "name": "Create Account (Admin Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clientId\": 1,\n  \"type\": \"COURANT\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/comptes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "comptes"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Account as Agent (Should Fail)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{agentToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clientId\": 1,\n  \"type\": \"COURANT\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/comptes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "comptes"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List All Accounts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/comptes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "comptes"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Account by Number",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/comptes/{{numeroCompte}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "comptes", "{{numeroCompte}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Client Accounts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/comptes/client/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "comptes", "client", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Activate Account (Admin Only)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/comptes/{{numeroCompte}}/activate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "comptes", "{{numeroCompte}}", "activate"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Deactivate Account (Admin Only)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/comptes/{{numeroCompte}}/deactivate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "comptes", "{{numeroCompte}}", "deactivate"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Account (Admin Only)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/comptes/{{numeroCompte}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "comptes", "{{numeroCompte}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Banking Operations (Agent & Admin)",
+      "item": [
+        {
+          "name": "Deposit",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/comptes/{{numeroCompte}}/depot?montant=500&description=Test%20Deposit",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "comptes", "{{numeroCompte}}", "depot"],
+              "query": [
+                {
+                  "key": "montant",
+                  "value": "500"
+                },
+                {
+                  "key": "description",
+                  "value": "Test Deposit"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Withdrawal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/comptes/{{numeroCompte}}/retrait?montant=200&description=Test%20Withdrawal",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "comptes", "{{numeroCompte}}", "retrait"],
+              "query": [
+                {
+                  "key": "montant",
+                  "value": "200"
+                },
+                {
+                  "key": "description",
+                  "value": "Test Withdrawal"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Transfer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"numeroCompteSource\": \"{{numeroCompte}}\",\n  \"numeroCompteDestination\": \"dest-account-number\",\n  \"montant\": 1000,\n  \"description\": \"Test Transfer\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/comptes/virement",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "comptes", "virement"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Account Balance",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/comptes/{{numeroCompte}}/solde",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "comptes", "{{numeroCompte}}", "solde"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Account Transactions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/comptes/{{numeroCompte}}/transactions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "comptes", "{{numeroCompte}}", "transactions"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Transactions by Period",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/comptes/{{numeroCompte}}/transactions/period?startDate=2024-01-01T00:00:00&endDate=2024-12-31T23:59:59",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "comptes", "{{numeroCompte}}", "transactions", "period"],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2024-01-01T00:00:00"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2024-12-31T23:59:59"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8081",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "agentToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "numeroCompte",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
+

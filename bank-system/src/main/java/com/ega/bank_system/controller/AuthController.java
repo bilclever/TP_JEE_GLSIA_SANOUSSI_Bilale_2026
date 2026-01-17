@@ -121,5 +121,25 @@ public class AuthController {
         authService.changePassword(request);
         return ResponseEntity.ok("Mot de passe modifié avec succès");
     }
+
+    @PostMapping("/logout")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(
+            summary = "Déconnexion utilisateur",
+            description = "Permet à un utilisateur authentifié de se déconnecter"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Déconnexion réussie"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Non authentifié"
+            )
+    })
+    public ResponseEntity<String> logout() {
+        return ResponseEntity.ok("Déconnexion réussie");
+    }
 }
 

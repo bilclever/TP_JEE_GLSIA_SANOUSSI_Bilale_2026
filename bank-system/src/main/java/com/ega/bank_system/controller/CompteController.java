@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -34,6 +35,7 @@ public class CompteController {
     private final TransactionService transactionService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(
         summary = "Créer un nouveau compte bancaire",
         description = "Crée un nouveau compte bancaire pour un client existant. Le solde initial est toujours 0. Le numéro de compte et la date de création sont générés automatiquement."
@@ -47,6 +49,10 @@ public class CompteController {
         @ApiResponse(
             responseCode = "400",
             description = "Données de création invalides (type de compte manquant ou ID client invalide)"
+        ),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Accès refusé - Seuls les administrateurs peuvent créer des comptes"
         ),
         @ApiResponse(
             responseCode = "404",
@@ -128,28 +134,52 @@ public class CompteController {
     }
 
     @PatchMapping("/{numeroCompte}/activate")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Activer un compte")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Compte activé avec succès"),
+            @ApiResponse(responseCode = "403", description = "Accès refusé - Seuls les ADMIN peuvent activer des comptes"),
+            @ApiResponse(responseCode = "404", description = "Compte non trouvé")
+    })
     public ResponseEntity<Void> activateCompte(@PathVariable String numeroCompte) {
         compteService.activateCompte(numeroCompte);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/{numeroCompte}/deactivate")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Désactiver un compte")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Compte désactivé avec succès"),
+            @ApiResponse(responseCode = "403", description = "Accès refusé - Seuls les ADMIN peuvent désactiver des comptes"),
+            @ApiResponse(responseCode = "404", description = "Compte non trouvé")
+    })
     public ResponseEntity<Void> deactivateCompte(@PathVariable String numeroCompte) {
         compteService.deactivateCompte(numeroCompte);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{numeroCompte}")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Supprimer un compte")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Compte supprimé avec succès"),
+            @ApiResponse(responseCode = "403", description = "Accès refusé - Seuls les ADMIN peuvent supprimer des comptes"),
+            @ApiResponse(responseCode = "404", description = "Compte non trouvé")
+    })
     public ResponseEntity<Void> deleteCompte(@PathVariable String numeroCompte) {
         compteService.deleteCompte(numeroCompte);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{numeroCompte}/depot")
+    @PreAuthorize("hasAnyRole('AGENT', 'ADMIN')")
     @Operation(summary = "Effectuer un dépôt")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Dépôt effectué avec succès"),
+            @ApiResponse(responseCode = "403", description = "Accès refusé - Seuls les AGENT et ADMIN peuvent faire des dépôts"),
+            @ApiResponse(responseCode = "404", description = "Compte non trouvé")
+    })
     public ResponseEntity<TransactionDTO> faireDepot(
             @PathVariable String numeroCompte,
             @RequestParam BigDecimal montant,
@@ -159,7 +189,14 @@ public class CompteController {
     }
 
     @PostMapping("/{numeroCompte}/retrait")
+    @PreAuthorize("hasAnyRole('AGENT', 'ADMIN')")
     @Operation(summary = "Effectuer un retrait")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Retrait effectué avec succès"),
+            @ApiResponse(responseCode = "403", description = "Accès refusé - Seuls les AGENT et ADMIN peuvent faire des retraits"),
+            @ApiResponse(responseCode = "404", description = "Compte non trouvé"),
+            @ApiResponse(responseCode = "400", description = "Solde insuffisant")
+    })
     public ResponseEntity<TransactionDTO> faireRetrait(
             @PathVariable String numeroCompte,
             @RequestParam BigDecimal montant,
@@ -169,7 +206,14 @@ public class CompteController {
     }
 
     @PostMapping("/virement")
+    @PreAuthorize("hasAnyRole('AGENT', 'ADMIN')")
     @Operation(summary = "Effectuer un virement")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Virement effectué avec succès"),
+            @ApiResponse(responseCode = "403", description = "Accès refusé - Seuls les AGENT et ADMIN peuvent faire des virements"),
+            @ApiResponse(responseCode = "404", description = "Compte source ou destination non trouvé"),
+            @ApiResponse(responseCode = "400", description = "Solde insuffisant ou données invalides")
+    })
     public ResponseEntity<TransactionDTO> faireVirement(@Valid @RequestBody VirementRequest virementRequest) {
         TransactionDTO transaction = transactionService.faireVirement(virementRequest);
         return ResponseEntity.ok(transaction);
