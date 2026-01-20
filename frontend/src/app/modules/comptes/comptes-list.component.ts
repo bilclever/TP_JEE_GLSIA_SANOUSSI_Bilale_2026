@@ -110,7 +110,7 @@ import { catchError } from 'rxjs/operators';
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>Solde</th>
                 <td mat-cell *matCellDef="let compte">
                   <span class="solde" [class.negative]="compte.solde < 0">
-                    {{compte.solde | currency:'TND':'symbol':'1.2-2'}}
+                    {{compte.solde | currency:'':'symbol':'1.2-2'}}
                   </span>
                 </td>
               </ng-container>

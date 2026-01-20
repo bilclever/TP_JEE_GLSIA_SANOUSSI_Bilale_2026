@@ -21,6 +21,7 @@ import { ToastrService } from 'ngx-toastr';
 import { ClientService } from '../../core/services/client.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { jsPDF } from 'jspdf';
 
 interface Transaction {
   id: number;
@@ -703,7 +704,138 @@ export class TransactionsListComponent implements OnInit {
   }
 
   printReceipt(transaction: Transaction): void {
-    this.toastr.info('Impression du reçu...');
+    const doc = new jsPDF();
+    
+    // En-tête
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.text('REÇU DE TRANSACTION', 105, 20, { align: 'center' });
+    
+    // Ligne de séparation
+    doc.setLineWidth(0.5);
+    doc.line(20, 25, 190, 25);
+    
+    // Informations de la transaction
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    
+    let y = 40;
+    const leftMargin = 20;
+    const lineHeight = 10;
+    
+    // Référence
+    doc.setFont('helvetica', 'bold');
+    doc.text('Référence:', leftMargin, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(transaction.reference, leftMargin + 50, y);
+    y += lineHeight;
+    
+    // Date
+    doc.setFont('helvetica', 'bold');
+    doc.text('Date:', leftMargin, y);
+    doc.setFont('helvetica', 'normal');
+    const dateStr = new Date(transaction.dateTransaction).toLocaleString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    doc.text(dateStr, leftMargin + 50, y);
+    y += lineHeight;
+    
+    // Type de transaction
+    doc.setFont('helvetica', 'bold');
+    doc.text('Type:', leftMargin, y);
+    doc.setFont('helvetica', 'normal');
+    let typeLabel = transaction.type;
+    if (transaction.type === 'VIREMENT_EMIS' || transaction.type === 'VIREMENT_RECU') {
+      typeLabel = 'VIREMENT';
+    }
+    doc.text(typeLabel, leftMargin + 50, y);
+    y += lineHeight;
+    
+    // Montant
+    doc.setFont('helvetica', 'bold');
+    doc.text('Montant:', leftMargin, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(14);
+    doc.text(`${transaction.montant.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} FCFA`, leftMargin + 50, y);
+    doc.setFontSize(12);
+    y += lineHeight + 5;
+    
+    // Statut
+    doc.setFont('helvetica', 'bold');
+    doc.text('Statut:', leftMargin, y);
+    doc.setFont('helvetica', 'normal');
+    const statusLabel = transaction.status === 'EN_ATTENTE' ? 'En attente' :
+                       transaction.status === 'VALIDEE' ? 'Validée' : 'Annulée';
+    doc.text(statusLabel, leftMargin + 50, y);
+    y += lineHeight + 5;
+    
+    // Informations du compte
+    if (transaction.type === 'DEPOT' || transaction.type === 'RETRAIT') {
+      doc.setFont('helvetica', 'bold');
+      doc.text('Compte:', leftMargin, y);
+      doc.setFont('helvetica', 'normal');
+      doc.text(transaction.numeroCompte || '-', leftMargin + 50, y);
+      y += lineHeight;
+    }
+    
+    // Informations pour virement
+    if (transaction.type === 'VIREMENT_EMIS' || transaction.type === 'VIREMENT_RECU') {
+      doc.setFont('helvetica', 'bold');
+      doc.text('Compte Source:', leftMargin, y);
+      doc.setFont('helvetica', 'normal');
+      doc.text(transaction.compteSource || '-', leftMargin + 50, y);
+      y += lineHeight;
+      
+      doc.setFont('helvetica', 'bold');
+      doc.text('Compte Destination:', leftMargin, y);
+      doc.setFont('helvetica', 'normal');
+      doc.text(transaction.compteDestination || '-', leftMargin + 50, y);
+      y += lineHeight;
+    }
+    
+    // Client
+    if (transaction.clientNom || transaction.clientPrenom) {
+      y += 5;
+      doc.setFont('helvetica', 'bold');
+      doc.text('Client:', leftMargin, y);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`${transaction.clientPrenom || ''} ${transaction.clientNom || ''}`.trim(), leftMargin + 50, y);
+      y += lineHeight;
+    }
+    
+    // Description
+    if (transaction.description) {
+      y += 5;
+      doc.setFont('helvetica', 'bold');
+      doc.text('Description:', leftMargin, y);
+      doc.setFont('helvetica', 'normal');
+      const descLines = doc.splitTextToSize(transaction.description, 120);
+      doc.text(descLines, leftMargin + 50, y);
+      y += lineHeight * descLines.length;
+    }
+    
+    // Ligne de séparation
+    y += 10;
+    doc.setLineWidth(0.5);
+    doc.line(20, y, 190, y);
+    
+    // Pied de page
+    y += 15;
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'italic');
+    doc.text('Ce reçu est généré automatiquement et constitue une preuve de transaction.', 105, y, { align: 'center' });
+    y += 10;
+    doc.text(`Document généré le ${new Date().toLocaleString('fr-FR')}`, 105, y, { align: 'center' });
+    
+    // Télécharger le PDF
+    const fileName = `recu_${transaction.reference}_${new Date().getTime()}.pdf`;
+    doc.save(fileName);
+    
+    this.toastr.success('Reçu téléchargé avec succès');
   }
 
   exportToExcel(): void {
