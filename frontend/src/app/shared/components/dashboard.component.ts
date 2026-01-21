@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -41,37 +41,58 @@ import { catchError } from 'rxjs/operators';
     <div class="rapports-container">
       <div class="header">
         <div class="actions">
-          <mat-form-field appearance="outline">
-            <mat-label>Période</mat-label>
-            <mat-select [(ngModel)]="selectedPeriod" (selectionChange)="onPeriodChange()">
-              <mat-option value="today">Aujourd'hui</mat-option>
-              <mat-option value="week">Cette semaine</mat-option>
-              <mat-option value="month">Ce mois</mat-option>
-              <mat-option value="year">Cette année</mat-option>
-              <mat-option value="custom">Personnalisée</mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <div *ngIf="selectedPeriod === 'custom'" class="custom-dates">
+          <div class="filter-group">
             <mat-form-field appearance="outline">
-              <mat-label>Date début</mat-label>
-              <input matInput 
-                     [matDatepicker]="startPicker" 
-                     [(ngModel)]="dateDebut"
-                     (dateChange)="loadData()">
-              <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
-              <mat-datepicker #startPicker></mat-datepicker>
+              <mat-label>Période</mat-label>
+              <mat-select [(ngModel)]="selectedPeriod" (selectionChange)="onPeriodChange()">
+                <mat-option value="today">Aujourd'hui</mat-option>
+                <mat-option value="week">Cette semaine</mat-option>
+                <mat-option value="month">Ce mois</mat-option>
+                <mat-option value="year">Cette année</mat-option>
+                <mat-option value="custom">Personnalisée</mat-option>
+              </mat-select>
             </mat-form-field>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Date fin</mat-label>
-              <input matInput 
-                     [matDatepicker]="endPicker" 
-                     [(ngModel)]="dateFin"
-                     (dateChange)="loadData()">
-              <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
-              <mat-datepicker #endPicker></mat-datepicker>
-            </mat-form-field>
+            <div *ngIf="selectedPeriod === 'custom'" class="custom-dates">
+              <mat-form-field appearance="outline">
+                <mat-label>Date début</mat-label>
+                <input matInput 
+                       [matDatepicker]="startPicker" 
+                       [(ngModel)]="dateDebut"
+                       [max]="dateFin || today"
+                       placeholder="JJ/MM/AAAA"
+                       readonly
+                       (focus)="startPicker.open()"
+                       (click)="startPicker.open()">
+                <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+                <mat-datepicker #startPicker [touchUi]="true" startView="multi-year"></mat-datepicker>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Date fin</mat-label>
+                <input matInput 
+                       [matDatepicker]="endPicker" 
+                       [(ngModel)]="dateFin"
+                       [min]="dateDebut"
+                       [max]="today"
+                       placeholder="JJ/MM/AAAA"
+                       readonly
+                       (focus)="endPicker.open()"
+                       (click)="endPicker.open()">
+                <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+                <mat-datepicker #endPicker [touchUi]="true" startView="multi-year"></mat-datepicker>
+              </mat-form-field>
+
+              <button mat-stroked-button color="accent" (click)="applyCustomDates()" [disabled]="!dateDebut || !dateFin">
+                <mat-icon>check</mat-icon>
+                Appliquer
+              </button>
+            </div>
+          </div>
+
+          <div class="filter-summary" *ngIf="dateDebut && dateFin">
+            <mat-icon>event</mat-icon>
+            <span>{{ dateDebut | date:'dd/MM/yyyy' }} → {{ dateFin | date:'dd/MM/yyyy' }}</span>
           </div>
 
           <button mat-raised-button color="primary" (click)="exportReport()">
@@ -166,7 +187,7 @@ import { catchError } from 'rxjs/operators';
                 <mat-card-content>
                   <div class="stats-grid">
                     <div class="stat-item">
-                      <mat-icon color="primary">arrow_downward</mat-icon>
+                      <mat-icon style="color: #000000">arrow_downward</mat-icon>
                       <div>
                         <strong>Dépôts</strong>
                         <p>{{ stats.depots.nombre }} transactions</p>
@@ -174,7 +195,7 @@ import { catchError } from 'rxjs/operators';
                       </div>
                     </div>
                     <div class="stat-item">
-                      <mat-icon color="warn">arrow_upward</mat-icon>
+                      <mat-icon style="color: #000000">arrow_upward</mat-icon>
                       <div>
                         <strong>Retraits</strong>
                         <p>{{ stats.retraits.nombre }} transactions</p>
@@ -182,7 +203,7 @@ import { catchError } from 'rxjs/operators';
                       </div>
                     </div>
                     <div class="stat-item">
-                      <mat-icon color="accent">swap_horiz</mat-icon>
+                      <mat-icon style="color: #000000">swap_horiz</mat-icon>
                       <div>
                         <strong>Virements</strong>
                         <p>{{ stats.virements.nombre }} transactions</p>
@@ -296,11 +317,97 @@ import { catchError } from 'rxjs/operators';
       gap: 15px;
       align-items: center;
       flex-wrap: wrap;
+      margin: 0;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin: 0;
+    }
+
+    .filter-group mat-form-field {
+      min-width: 200px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+    }
+
+    ::ng-deep .filter-group .mat-mdc-form-field {
+      height: 36px !important;
+      display: flex !important;
+      align-items: center !important;
+    }
+
+    ::ng-deep .filter-group .mat-mdc-form-field-wrapper {
+      height: 36px !important;
+      display: flex !important;
+      align-items: center !important;
+    }
+
+    ::ng-deep .filter-group .mdc-text-field {
+      height: 30px !important;
+    }
+
+    ::ng-deep .filter-group .mdc-text-field__input {
+      height: 36px !important;
+      padding: 0 12px !important;
+    }
+
+    ::ng-deep .filter-group .mat-mdc-form-field .mdc-text-field--filled {
+      background-color: white !important;
+    }
+
+    ::ng-deep .filter-group .mat-mdc-select {
+      color: black !important;
+    }
+
+    ::ng-deep .filter-group .mat-mdc-select-arrow {
+      color: black !important;
+    }
+
+    ::ng-deep .filter-group .mat-mdc-form-field .mat-mdc-form-field-label {
+      color: black !important;
+    }
+
+    ::ng-deep .mat-mdc-option {
+      background-color: white !important;
+      color: black !important;
+    }
+
+    ::ng-deep .mat-mdc-option:hover {
+      background-color: #f0f0f0 !important;
+    }
+
+    ::ng-deep .mat-mdc-option.mat-selected {
+      background-color: #e8f4f8 !important;
+      color: black !important;
     }
 
     .custom-dates {
       display: flex;
       gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .filter-summary {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border: 1px dashed rgba(226, 232, 240, 0.4);
+      border-radius: 10px;
+      color: #e2e8f0;
+      background: rgba(148, 163, 184, 0.08);
+      font-size: 14px;
+    }
+
+    .filter-summary mat-icon {
+      color: #7dd3fc;
+      font-size: 18px;
     }
 
     .loading-container {
@@ -333,23 +440,25 @@ import { catchError } from 'rxjs/operators';
       margin: 0 0 5px 0;
       font-size: 28px;
       font-weight: 600;
+      color: #e2e8f0;
     }
 
     .kpi-content p {
       margin: 0 0 5px 0;
-      color: #666;
+      color: #94a3b8;
     }
 
     .trend {
       font-size: 12px;
       padding: 2px 8px;
       border-radius: 12px;
-      background: #e0e0e0;
+      background: rgba(148, 163, 184, 0.2);
+      color: #e2e8f0;
     }
 
     .trend.positive {
-      background: #c8e6c9;
-      color: #2e7d32;
+      background: rgba(52, 211, 153, 0.2);
+      color: #34d399;
     }
 
     .tab-content {
@@ -395,12 +504,13 @@ import { catchError } from 'rxjs/operators';
     .stat-item strong {
       display: block;
       margin-bottom: 5px;
+      color: #000000;
     }
 
     .stat-item p {
       margin: 0;
       font-size: 14px;
-      color: #666;
+      color: #000000;
     }
 
     .top-clients {
@@ -413,7 +523,7 @@ import { catchError } from 'rxjs/operators';
       justify-content: space-between;
       align-items: center;
       padding: 15px;
-      border-bottom: 1px solid #e0e0e0;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
     }
 
     .client-item:last-child {
@@ -423,16 +533,17 @@ import { catchError } from 'rxjs/operators';
     .client-info strong {
       display: block;
       margin-bottom: 5px;
+      color: #e2e8f0;
     }
 
     .client-info span {
       font-size: 14px;
-      color: #666;
+      color: #94a3b8;
     }
 
     .client-solde {
       font-weight: 600;
-      color: #4caf50;
+      color: #34d399;
     }
   `]
 })
@@ -441,6 +552,7 @@ export class DashboardComponent implements OnInit {
   selectedPeriod = 'month';
   dateDebut: Date | null = null;
   dateFin: Date | null = null;
+  today = new Date();
 
   kpis = {
     totalComptes: 0,
@@ -559,28 +671,42 @@ export class DashboardComponent implements OnInit {
     this.onPeriodChange();
   }
 
+  @HostListener('window:resize')
+  onResize(): void {
+    this.cdr.markForCheck();
+  }
+
   onPeriodChange(): void {
     const now = new Date();
-    this.dateFin = now;
+    this.dateFin = new Date(now);
 
     switch (this.selectedPeriod) {
       case 'today':
-        this.dateDebut = new Date(now.setHours(0, 0, 0, 0));
+        this.dateDebut = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
         break;
       case 'week':
-        this.dateDebut = new Date(now.setDate(now.getDate() - 7));
+        this.dateDebut = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7, 0, 0, 0, 0);
         break;
       case 'month':
-        this.dateDebut = new Date(now.setMonth(now.getMonth() - 1));
+        this.dateDebut = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate(), 0, 0, 0, 0);
         break;
       case 'year':
-        this.dateDebut = new Date(now.setFullYear(now.getFullYear() - 1));
+        this.dateDebut = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate(), 0, 0, 0, 0);
         break;
       case 'custom':
+        this.dateDebut = null;
+        this.dateFin = null;
         return;
     }
 
     this.loadData();
+  }
+
+  applyCustomDates(): void {
+    if (this.dateDebut && this.dateFin) {
+      console.log('📅 Dates appliquées:', { dateDebut: this.dateDebut, dateFin: this.dateFin });
+      this.loadData();
+    }
   }
 
   loadData(): void {
@@ -607,6 +733,8 @@ export class DashboardComponent implements OnInit {
           courant: comptesList.filter((c: any) => c.type === 'COURANT').length,
           epargne: comptesList.filter((c: any) => c.type === 'EPARGNE').length
         };
+        
+        // Réinitialiser les charts
         this.comptesTypeChart.data.datasets[0].data = [comptesParType.courant, comptesParType.epargne];
 
         if (!comptesList.length) {
@@ -631,7 +759,9 @@ export class DashboardComponent implements OnInit {
 
         forkJoin<any[]>(transactionRequests).subscribe(
           (results: any[]) => {
-            const transactions = results.flat();
+            const transactionsRaw = results.flat();
+            const transactions = this.filterTransactionsByDate(transactionsRaw);
+
             this.kpis.nombreTransactions = transactions.length;
             this.kpis.volumeTransactions = transactions.reduce((sum: number, t: any) => sum + (t?.montant || 0), 0);
 
@@ -656,8 +786,16 @@ export class DashboardComponent implements OnInit {
 
             this.loadTransactionsChart(transactions);
 
+            // Forcer la mise à jour complète des graphiques (crée nouvelles instances)
+            const volumeChartBackup = JSON.stringify(this.transactionsVolumeChart);
+            const typeChartBackup = JSON.stringify(this.transactionsTypeChart);
+            
+            this.transactionsTypeChart = JSON.parse(typeChartBackup);
+            this.transactionsVolumeChart = JSON.parse(volumeChartBackup);
+
             this.loading = false;
             this.cdr.markForCheck();
+            this.cdr.detectChanges();
           },
           () => {
             this.loading = false;
@@ -691,6 +829,28 @@ export class DashboardComponent implements OnInit {
     const derniers7Jours = Object.entries(transParJour).slice(-7);
     this.transactionsVolumeChart.data.labels = derniers7Jours.map(([date]) => date);
     this.transactionsVolumeChart.data.datasets[0].data = derniers7Jours.map(([, montant]) => montant);
+  }
+
+  private filterTransactionsByDate(transactions: any[]): any[] {
+    if (!this.dateDebut || !this.dateFin) {
+      console.log('❌ Pas de filtre de date, retour toutes transactions:', transactions.length);
+      return transactions;
+    }
+
+    const start = new Date(this.dateDebut);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(this.dateFin);
+    end.setHours(23, 59, 59, 999);
+
+    const filtered = transactions.filter((t: any) => {
+      const rawDate = t.dateTransaction || t.dateOperation;
+      if (!rawDate) return false;
+      const d = new Date(rawDate);
+      if (isNaN(d.getTime())) return false;
+      return d >= start && d <= end;
+    });
+
+    return filtered;
   }
 
   loadComptesData(): void {

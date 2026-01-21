@@ -162,12 +162,13 @@ import { filter } from 'rxjs/operators';
     .sidenav {
       width: 260px;
       height: 100%;
-      background: #2c3e50;
-      color: white;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.96) 0%, rgba(10, 12, 26, 0.98) 100%);
+      color: #e2e8f0;
       overflow-y: auto;
       overflow-x: hidden;
       margin: 0;
       padding: 0;
+      border-right: 1px solid rgba(34, 211, 238, 0.15);
     }
 
     @media (max-width: 768px) {
@@ -179,7 +180,9 @@ import { filter } from 'rxjs/operators';
     .sidenav-header {
       padding: 24px 16px;
       text-align: center;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: #0b1b2b;
+      box-shadow: 0 12px 32px rgba(34, 211, 238, 0.15);
     }
 
     .sidenav-header .logo {
@@ -187,12 +190,16 @@ import { filter } from 'rxjs/operators';
       width: 48px;
       height: 48px;
       margin-bottom: 8px;
+      color: #0b1b2b;
     }
 
     .sidenav-header h2 {
       margin: 0;
       font-size: 20px;
-      font-weight: 600;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #0b1b2b;
+      text-shadow: 0 1px 2px rgba(12, 74, 110, 0.35);
     }
 
     mat-nav-list {
@@ -200,24 +207,30 @@ import { filter } from 'rxjs/operators';
     }
 
     mat-nav-list a {
-      color: #ecf0f1;
+      color: #e2e8f0;
       margin: 4px 8px;
-      border-radius: 8px;
-      transition: all 0.3s;
+      border-radius: 10px;
+      transition: all 0.3s ease;
       display: flex !important;
       align-items: center !important;
       gap: 16px !important;
       height: 48px !important;
       padding: 0 12px !important;
+      border: 1px solid transparent;
     }
 
     mat-nav-list a:hover {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(34, 211, 238, 0.08);
+      border-color: rgba(34, 211, 238, 0.15);
+      box-shadow: 0 6px 18px rgba(34, 211, 238, 0.12);
     }
 
     mat-nav-list a.active {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: #0b1b2b;
+      border-color: rgba(34, 211, 238, 0.35);
+      box-shadow: 0 10px 24px rgba(34, 211, 238, 0.22);
+      font-weight: 600;
     }
 
     mat-nav-list mat-icon {
@@ -228,6 +241,7 @@ import { filter } from 'rxjs/operators';
       min-width: 24px !important;
       min-height: 24px !important;
       flex-shrink: 0 !important;
+      opacity: 0.9;
     }
 
     mat-list-item-title {
@@ -251,19 +265,23 @@ import { filter } from 'rxjs/operators';
       margin: 0;
       padding: 0;
       overflow: hidden;
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(11, 17, 31, 0.94) 55%, rgba(17, 94, 89, 0.35) 100%);
+      backdrop-filter: blur(8px);
     }
 
     .toolbar {
       position: sticky;
       top: 0;
       z-index: 100;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.55), 0 0 0 1px rgba(34, 211, 238, 0.12);
       flex-shrink: 0;
       padding: 0 12px;
       height: 64px;
       display: flex;
       align-items: center;
       gap: 8px;
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(13, 29, 52, 0.95) 60%, rgba(34, 211, 238, 0.16) 100%);
+      color: #e2e8f0;
     }
 
     @media (max-width: 600px) {
@@ -275,12 +293,13 @@ import { filter } from 'rxjs/operators';
 
     .toolbar-title {
       font-size: 18px;
-      font-weight: 600;
+      font-weight: 700;
       margin: 0;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.6px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      color: #e0f2fe;
     }
 
     @media (max-width: 960px) {
@@ -317,7 +336,8 @@ import { filter } from 'rxjs/operators';
       overflow-y: auto;
       overflow-x: hidden;
       padding: 16px;
-      background: #f5f7fa;
+      background: transparent;
+      color: #e2e8f0;
     }
 
     @media (min-width: 769px) {
@@ -334,12 +354,13 @@ import { filter } from 'rxjs/operators';
 
     .notification-header {
       padding: 16px;
+      color: #e2e8f0;
     }
 
     .notification-header h3 {
       margin: 0;
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 700;
     }
 
     .user-menu-header {
@@ -350,6 +371,7 @@ import { filter } from 'rxjs/operators';
       min-width: 300px;
       max-width: 100%;
       flex-wrap: wrap;
+      color: #e2e8f0;
     }
 
     .user-menu-header mat-icon {
@@ -358,13 +380,13 @@ import { filter } from 'rxjs/operators';
       height: 40px;
       min-width: 40px;
       min-height: 40px;
-      color: #667eea;
+      color: var(--primary);
       flex-shrink: 0;
     }
 
     .user-name {
-      font-weight: 600;
-      color: #333;
+      font-weight: 700;
+      color: #e2e8f0;
       white-space: normal;
       word-break: break-word;
       min-width: 0;
@@ -372,7 +394,7 @@ import { filter } from 'rxjs/operators';
 
     .user-role {
       font-size: 12px;
-      color: #666;
+      color: #94a3b8;
       white-space: normal;
       word-break: break-word;
       width: 100%;
@@ -380,28 +402,35 @@ import { filter } from 'rxjs/operators';
 
     mat-divider {
       margin: 8px 0;
+      border-color: rgba(148, 163, 184, 0.2);
     }
 
     ::ng-deep .mat-mdc-menu-panel {
       min-width: 300px !important;
-      background-color: #ffffff !important;
+      background: rgba(15, 23, 42, 0.96) !important;
+      border: 1px solid rgba(34, 211, 238, 0.2) !important;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35) !important;
+      backdrop-filter: blur(12px) !important;
+      color: #e2e8f0 !important;
     }
 
     ::ng-deep .mat-mdc-menu-item {
       min-height: 48px !important;
       padding: 12px 16px !important;
       white-space: normal !important;
-      color: #000000 !important;
-      background-color: #ffffff !important;
+      color: #e2e8f0 !important;
+      background: transparent !important;
+      transition: background 0.2s ease, color 0.2s ease;
     }
 
     ::ng-deep .mat-mdc-menu-item:hover {
-      background-color: #f5f5f5 !important;
+      background: rgba(34, 211, 238, 0.12) !important;
+      color: #e0f2fe !important;
     }
 
     ::ng-deep .mat-mdc-menu-item mat-icon {
       margin-right: 16px !important;
-      color: #000000 !important;
+      color: inherit !important;
     }
   `]
 })

@@ -40,30 +40,6 @@ import { AuthService, RegisterRequest } from '../../core/services/auth.service';
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-              <mat-label>Prénom</mat-label>
-              <input matInput formControlName="firstName" required />
-              <mat-error *ngIf="userForm.get('firstName')?.hasError('required')">Requis</mat-error>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>Nom</mat-label>
-              <input matInput formControlName="lastName" required />
-              <mat-error *ngIf="userForm.get('lastName')?.hasError('required')">Requis</mat-error>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>Email</mat-label>
-              <input matInput type="email" formControlName="email" required />
-              <mat-error *ngIf="userForm.get('email')?.hasError('email')">Email invalide</mat-error>
-              <mat-error *ngIf="userForm.get('email')?.hasError('required')">Requis</mat-error>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>Téléphone</mat-label>
-              <input matInput formControlName="phoneNumber" />
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
               <mat-label>Rôle</mat-label>
               <mat-select formControlName="role" required>
                 <mat-option value="ADMIN">Admin</mat-option>
@@ -77,13 +53,6 @@ import { AuthService, RegisterRequest } from '../../core/services/auth.service';
               <input matInput type="password" formControlName="password" required />
               <mat-error *ngIf="userForm.get('password')?.hasError('required')">Requis</mat-error>
               <mat-error *ngIf="userForm.get('password')?.hasError('minlength')">6 caractères minimum</mat-error>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>Confirmation</mat-label>
-              <input matInput type="password" formControlName="confirmPassword" required />
-              <mat-error *ngIf="userForm.get('confirmPassword')?.hasError('required')">Requis</mat-error>
-              <mat-error *ngIf="userForm.get('confirmPassword')?.hasError('mismatch')">Les mots de passe ne correspondent pas</mat-error>
             </mat-form-field>
           </form>
         </mat-card-content>
@@ -140,13 +109,8 @@ export class ParametresComponent {
 
   userForm = this.fb.group({
     username: ['', Validators.required],
-    firstName: ['', Validators.required],
-    lastName: ['', Validators.required],
-    email: ['', [Validators.required, Validators.email]],
-    phoneNumber: [''],
     role: ['', Validators.required],
     password: ['', [Validators.required, Validators.minLength(6)]],
-    confirmPassword: ['', Validators.required]
   });
 
   onSubmit(): void {
@@ -155,12 +119,6 @@ export class ParametresComponent {
     if (this.userForm.invalid) {
       this.userForm.markAllAsTouched();
       this.toastr.error('Veuillez corriger les erreurs du formulaire');
-      return;
-    }
-
-    if (this.userForm.value.password !== this.userForm.value.confirmPassword) {
-      this.userForm.get('confirmPassword')?.setErrors({ mismatch: true });
-      this.toastr.error('Les mots de passe ne correspondent pas');
       return;
     }
 

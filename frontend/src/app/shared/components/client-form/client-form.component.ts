@@ -8,7 +8,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
+import { MatNativeDateModule, provideNativeDateAdapter } from '@angular/material/core';
+import { MatIconModule } from '@angular/material/icon';
 import { Client, ClientCreateRequest } from '../../../core/services/client.service';
 
 @Component({
@@ -23,8 +24,10 @@ import { Client, ClientCreateRequest } from '../../../core/services/client.servi
     MatButtonModule,
     MatSelectModule,
     MatDatepickerModule,
-    MatNativeDateModule
+    MatNativeDateModule,
+    MatIconModule
   ],
+  providers: [provideNativeDateAdapter()],
   template: `
     <h2 mat-dialog-title>{{ isEditMode ? 'Modifier le client' : 'Nouveau client' }}</h2>
     <mat-dialog-content>
@@ -50,9 +53,17 @@ import { Client, ClientCreateRequest } from '../../../core/services/client.servi
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>Date de naissance</mat-label>
-            <input matInput [matDatepicker]="picker" formControlName="dateNaissance" required>
+                 <input matInput 
+                   [matDatepicker]="picker" 
+                   formControlName="dateNaissance" 
+                   required 
+                   readonly
+                   [max]="today"
+                   placeholder="JJ/MM/AAAA"
+                   (focus)="picker.open()"
+                   (click)="picker.open()">
             <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
+                 <mat-datepicker #picker [touchUi]="true" startView="multi-year"></mat-datepicker>
             <mat-error *ngIf="clientForm.get('dateNaissance')?.hasError('required')">
               La date de naissance est requise
             </mat-error>
@@ -161,6 +172,7 @@ import { Client, ClientCreateRequest } from '../../../core/services/client.servi
 export class ClientFormComponent implements OnInit {
   clientForm!: FormGroup;
   isEditMode = false;
+  today = new Date();
 
   constructor(
     private fb: FormBuilder,

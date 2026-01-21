@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
@@ -62,8 +62,17 @@ interface Transaction {
     <div class="transactions-container">
       <mat-card>
         <mat-card-content>
+          <!-- Toggle filtres (mobile) -->
+          <div class="filters-toggle">
+            <button mat-stroked-button color="accent" (click)="toggleFilters()">
+              <mat-icon>{{ filtersOpen ? 'filter_alt_off' : 'filter_list' }}</mat-icon>
+              {{ filtersOpen ? 'Masquer les filtres' : 'Afficher les filtres' }}
+            </button>
+            <span class="toggle-hint" *ngIf="!filtersOpen && isMobile">Affiner la liste</span>
+          </div>
+
           <!-- Filtres -->
-          <div class="filters-section">
+          <div class="filters-section" [class.collapsed]="!filtersOpen && isMobile">
             <mat-form-field appearance="outline">
               <mat-label>Rechercher</mat-label>
               <input matInput 
@@ -311,6 +320,18 @@ interface Transaction {
       max-width: 180px;
     }
 
+    .filters-toggle {
+      display: none;
+      margin-bottom: 12px;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toggle-hint {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 13px;
+    }
+
     .stats-row {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -412,6 +433,44 @@ interface Transaction {
       font-weight: 600;
     }
 
+    @media (max-width: 768px) {
+      .transactions-container {
+        padding: 12px;
+      }
+
+      .filters-toggle {
+        display: flex;
+      }
+
+      .filters-section {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+        gap: 12px;
+      }
+
+      .filters-section.collapsed {
+        display: none;
+      }
+
+      .filters-section mat-form-field {
+        width: 100%;
+        max-width: none;
+      }
+
+      .stats-row {
+        grid-template-columns: 1fr;
+      }
+
+      .stat-card {
+        padding: 16px;
+      }
+
+      .table-container {
+        margin-top: 12px;
+      }
+    }
+
   `]
 })
 export class TransactionsListComponent implements OnInit {
@@ -428,6 +487,10 @@ export class TransactionsListComponent implements OnInit {
   transactions: Transaction[] = [];
   displayedTransactions: Transaction[] = [];
   loading = false;
+
+  // Responsive
+  isMobile = false;
+  filtersOpen = true;
 
   // Filtres
   searchTerm = '';
@@ -454,7 +517,34 @@ export class TransactionsListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.updateViewportFlags();
     this.loadTransactions();
+  }
+
+  @HostListener('window:resize')
+  onResize(): void {
+    this.updateViewportFlags();
+  }
+
+  toggleFilters(): void {
+    this.filtersOpen = !this.filtersOpen;
+  }
+
+  private updateViewportFlags(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    this.isMobile = window.innerWidth <= 768;
+
+    // Sur mobile, masquer les filtres par défaut pour gagner de l'espace
+    if (this.isMobile && this.filtersOpen) {
+      this.filtersOpen = false;
+    }
+
+    // Sur desktop, toujours afficher les filtres
+    if (!this.isMobile && !this.filtersOpen) {
+      this.filtersOpen = true;
+    }
   }
 
   loadTransactions(): void {
