@@ -1,8 +1,8 @@
 // environment.ts
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:8081/api',
+  apiUrl: 'https://partial-dulcy-bilclever-7656c20c.koyeb.app/api',
   appName: 'Banque Ega',
   version: '1.0.0',
-  domain: 'localhost'
+  domain: 'partial-dulcy-bilclever-7656c20c.koyeb.app'
 };
