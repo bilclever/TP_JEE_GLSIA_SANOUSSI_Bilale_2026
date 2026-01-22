@@ -1,6 +1,6 @@
 // comptes-list.component.ts
 import { Component, OnInit, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
@@ -43,7 +43,6 @@ import { catchError } from 'rxjs/operators';
     MatProgressSpinnerModule,
     MatMenuModule,
     MatDialogModule,
-    CurrencyPipe,
     DatePipe,
     MatDividerModule
   ],
@@ -64,7 +63,7 @@ import { catchError } from 'rxjs/operators';
               <mat-label>Rechercher un compte</mat-label>
               <input matInput [(ngModel)]="searchTerm" 
                      (keyup.enter)="applyFilter()"
-                     placeholder="Numéro de compte, client...">
+                    >
               <button mat-icon-button matSuffix (click)="applyFilter()">
                 <mat-icon>search</mat-icon>
               </button>
@@ -110,7 +109,7 @@ import { catchError } from 'rxjs/operators';
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>Solde</th>
                 <td mat-cell *matCellDef="let compte">
                   <span class="solde" [class.negative]="compte.solde < 0">
-                    {{compte.solde | currency:'':'symbol':'1.2-2'}}
+                    {{compte.solde | number:'1.2-2'}} FCFA
                   </span>
                 </td>
               </ng-container>

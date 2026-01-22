@@ -92,10 +92,11 @@ import { AuthService, ChangePasswordRequest } from '../../core/services/auth.ser
     .page-wrapper {
       max-width: 900px;
       margin: 0 auto;
-      padding: 8px;
+      padding: 16px 8px 80px 8px;
       display: flex;
       flex-direction: column;
       gap: 24px;
+      min-height: 100%;
     }
 
     .form-grid {
@@ -125,13 +126,35 @@ import { AuthService, ChangePasswordRequest } from '../../core/services/auth.ser
 
     .user-info-card {
       margin-top: 16px;
+      background: rgba(15, 23, 42, 0.85);
+      color: #e2e8f0;
+    }
+
+    body.light-theme .user-info-card {
+      background: #ffffff;
+      color: #0f172a;
+    }
+
+    mat-card {
+      background: rgba(15, 23, 42, 0.85);
+      color: #e2e8f0;
+    }
+
+    body.light-theme mat-card {
+      background: #ffffff;
+      color: #0f172a;
     }
 
     .info-row {
       display: flex;
       justify-content: space-between;
       padding: 12px 0;
-      border-bottom: 1px solid #e0e0e0;
+      border-bottom: 1px solid rgba(34, 211, 238, 0.15);
+      align-items: center;
+    }
+
+    body.light-theme .info-row {
+      border-bottom: 1px solid rgba(2, 132, 199, 0.15);
     }
 
     .info-row:last-child {
@@ -140,21 +163,67 @@ import { AuthService, ChangePasswordRequest } from '../../core/services/auth.ser
 
     .label {
       font-weight: 500;
-      color: #666;
+      color: #94a3b8;
+    }
+
+    body.light-theme .label {
+      color: #64748b;
     }
 
     .value {
-      font-weight: 600;
-      color: #333;
+      font-weight: 800;
+      color: #e2e8f0;
+      font-size: 16px;
+      letter-spacing: 0.5px;
+    }
+
+    body.light-theme .value {
+      color: #000000;
+      font-weight: 800;
+      font-size: 16px;
     }
 
     .role-badge {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
-      padding: 4px 12px;
+      padding: 6px 14px;
       border-radius: 12px;
-      font-size: 12px;
+      font-size: 8px;
       text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    /* Thème avec bon contraste */
+    ::ng-deep body:not(.light-theme) mat-card-title {
+      color: #ffffff !important;
+    }
+
+    ::ng-deep body.light-theme mat-card-title {
+      color: #0f172a !important;
+    }
+
+    ::ng-deep body:not(.light-theme) mat-card-subtitle {
+      color: #cbd5e1 !important;
+    }
+
+    ::ng-deep body.light-theme mat-card-subtitle {
+      color: #475569 !important;
+    }
+
+    ::ng-deep body:not(.light-theme) .mat-mdc-form-field-label {
+      color: #e2e8f0 !important;
+    }
+
+    ::ng-deep body.light-theme .mat-mdc-form-field-label {
+      color: #0f172a !important;
+    }
+
+    ::ng-deep body:not(.light-theme) .mat-mdc-input-element {
+      color: #ffffff !important;
+    }
+
+    ::ng-deep body.light-theme .mat-mdc-input-element {
+      color: #0f172a !important;
     }
   `]
 })

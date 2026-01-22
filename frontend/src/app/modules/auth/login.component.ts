@@ -76,8 +76,8 @@ import { ToastrService } from 'ngx-toastr';
               <button mat-raised-button color="primary" type="submit" 
                       class="full-width login-button"
                       [disabled]="!loginForm.valid || isLoading">
-                <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
-                <span *ngIf="!isLoading">Se connecter</span>
+                <mat-spinner diameter="18" strokeWidth="3" *ngIf="isLoading"></mat-spinner>
+                <span>{{ isLoading ? 'Connexion...' : 'Se connecter' }}</span>
               </button>
             </form>
           </mat-card-content>
@@ -308,6 +308,20 @@ import { ToastrService } from 'ngx-toastr';
       font-size: 14px !important;
       padding-top: 12px !important;
       padding-bottom: 8px !important;
+    }
+
+    /* Force black input text regardless of theme */
+    :host-context(body.light-theme) ::ng-deep .mat-mdc-form-field .mat-mdc-input-element,
+    :host-context(body:not(.light-theme)) ::ng-deep .mat-mdc-form-field .mat-mdc-input-element {
+      color: #000000 !important;
+      caret-color: #000000 !important;
+      -webkit-text-fill-color: #000000 !important;
+    }
+
+    /* Ensure autofill keeps black text */
+    :host ::ng-deep input.mat-mdc-input-element:-webkit-autofill {
+      -webkit-text-fill-color: #000000 !important;
+      caret-color: #000000 !important;
     }
 
     ::ng-deep .mat-mdc-form-field .mat-mdc-input-element::placeholder {

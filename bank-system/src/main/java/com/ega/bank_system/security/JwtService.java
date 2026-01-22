@@ -101,8 +101,9 @@ public class JwtService {
 
     /**
      * Extrait la date d'expiration du token
+     * Expose expiration pour révoquer un token jusqu'à son échéance.
      */
-    private Date extractExpiration(String token) {
+    public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
@@ -126,4 +127,3 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }
-

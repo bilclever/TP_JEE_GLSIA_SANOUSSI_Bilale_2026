@@ -5,12 +5,18 @@ import com.ega.bank_system.dto.AuthResponse;
 import com.ega.bank_system.dto.ChangePasswordRequest;
 import com.ega.bank_system.dto.RegisterRequest;
 import com.ega.bank_system.service.AuthService;
+import com.ega.bank_system.security.BlacklistService;
+import com.ega.bank_system.security.JwtService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +33,8 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtService jwtService;
+    private final BlacklistService blacklistService;
 
     @PostMapping("/login")
     @Operation(
@@ -126,7 +134,7 @@ public class AuthController {
     @PreAuthorize("isAuthenticated()")
     @Operation(
             summary = "Déconnexion utilisateur",
-            description = "Permet à un utilisateur authentifié de se déconnecter"
+            description = "Révoque le token courant (blacklist) et nettoie la session/cookies côté serveur"
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -138,8 +146,31 @@ public class AuthController {
                     description = "Non authentifié"
             )
     })
-    public ResponseEntity<String> logout() {
+    public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
+        // Invalider la session si elle existe
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+
+        // Récupérer le token Bearer et le blacklister jusqu'à son expiration
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            blacklistService.revoke(token, jwtService.extractExpiration(token).getTime());
+        }
+
+        // Supprimer les cookies d'authentification
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                cookie.setValue("");
+                cookie.setPath("/");
+                cookie.setMaxAge(0);
+                response.addCookie(cookie);
+            }
+        }
+
         return ResponseEntity.ok("Déconnexion réussie");
     }
 }
-

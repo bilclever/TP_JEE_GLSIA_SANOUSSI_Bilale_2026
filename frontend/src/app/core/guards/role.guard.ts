@@ -18,7 +18,10 @@ export const roleGuard: CanActivateFn = (route, state) => {
   }
 
   if (requiredRoles && !requiredRoles.includes(currentUser.role)) {
-    toastr.error('Vous n\'avez pas les droits nécessaires pour accéder à cette page', 'Accès refusé');
+    // Ne pas afficher le toast pour les agents; rediriger silencieusement
+    if (currentUser.role !== 'AGENT') {
+      toastr.error('Vous n\'avez pas les droits nécessaires pour accéder à cette page', 'Accès refusé');
+    }
     router.navigate(['/transactions']);
     return false;
   }

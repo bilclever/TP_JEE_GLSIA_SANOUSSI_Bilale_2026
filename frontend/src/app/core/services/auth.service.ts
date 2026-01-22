@@ -1,7 +1,7 @@
 // auth.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, tap, catchError, of } from 'rxjs';
 import { Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
 import { environment } from '../../../environments/environment';
@@ -89,15 +89,20 @@ export class AuthService {
       );
   }
 
-  logout(): void {
-    const refreshToken = this.cookieService.get('refresh_token');
-    if (refreshToken) {
-      this.http.post(`${this.API_URL}/logout`, { refresh_token: refreshToken }).subscribe();
-    }
-    
-    this.clearStorage();
-    this.currentUserSubject.next(null);
-    this.router.navigate(['/login']);
+  logout(): Observable<any> {
+    return this.http.post(`${this.API_URL}/logout`, {}, { responseType: 'text' })
+      .pipe(
+        tap(() => {
+          this.clearStorage();
+          this.currentUserSubject.next(null);
+        }),
+        catchError(() => {
+          // Même en cas d'erreur, on nettoie le storage local
+          this.clearStorage();
+          this.currentUserSubject.next(null);
+          return of('Déconnexion effectuée localement');
+        })
+      );
   }
 
   isAuthenticated(): boolean {

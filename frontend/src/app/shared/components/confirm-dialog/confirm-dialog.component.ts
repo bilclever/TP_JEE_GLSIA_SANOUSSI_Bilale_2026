@@ -7,7 +7,8 @@ import { MatIconModule } from '@angular/material/icon';
 
 export interface ConfirmDialogData {
   title: string;
-  message: string;
+  message?: string;
+  details?: { label: string; value: string }[];
   confirmText?: string;
   cancelText?: string;
   type?: 'warning' | 'danger' | 'info';
@@ -30,46 +31,93 @@ export interface ConfirmDialogData {
       {{ data.title }}
     </h2>
     <mat-dialog-content>
-      <p>{{ data.message }}</p>
+      <p *ngIf="data.message">{{ data.message }}</p>
+
+      <div class="details" *ngIf="data.details?.length">
+        <div class="detail-row" *ngFor="let detail of data.details">
+          <span class="label">{{ detail.label }}:</span>
+          <span class="value">{{ detail.value }}</span>
+        </div>
+      </div>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button mat-button (click)="onCancel()">
+      <button mat-button (click)="onCancel()" class="action-btn">
         {{ data.cancelText || 'Annuler' }}
       </button>
       <button 
         mat-raised-button 
         [color]="data.type === 'danger' ? 'warn' : 'primary'"
-        (click)="onConfirm()">
+        (click)="onConfirm()"
+        class="action-btn">
         {{ data.confirmText || 'Confirmer' }}
       </button>
     </mat-dialog-actions>
   `,
   styles: [`
-    h2 {
+    :host {
       display: flex;
-      align-items: center;
-      gap: 8px;
+      flex-direction: column;
+      width: 100%;
+      color: #000 !important;
     }
-    mat-icon {
-      font-size: 28px;
-      width: 28px;
-      height: 28px;
+    h2, mat-dialog-content, .details, .detail-row, .label, .value, p, mat-dialog-actions, .action-btn {
+      color: #000 !important;
     }
-    .icon-warning {
+    .detail-row {
+      background-color: #f5f5f5 !important;
+    }
+    .label {
+      font-weight: 600;
+      color: #2196f3 !important;
+      font-size: 12px;
+    }
+    mat-icon.icon-warning {
       color: #ff9800;
     }
-    .icon-danger {
+    mat-icon.icon-danger {
       color: #f44336;
     }
-    .icon-info {
+    mat-icon.icon-info {
       color: #2196f3;
     }
     mat-dialog-content {
-      padding: 20px 0;
-    }
-    p {
+      overflow-y: auto;
+      max-height: 60vh;
+      padding: 8px 0;
       margin: 0;
-      color: #666;
+    }
+    .action-btn {
+      min-width: 80px;
+      font-size: 12px;
+    }
+    @media (max-width: 600px) {
+      h2 {
+        font-size: 16px;
+      }
+      mat-dialog-content {
+        max-height: 50vh;
+        padding: 6px 0;
+      }
+      .detail-row {
+        font-size: 12px;
+        gap: 3px;
+        padding: 5px;
+      }
+      .label {
+        font-size: 11px;
+      }
+      .value {
+        font-size: 12px;
+      }
+      mat-dialog-actions {
+        flex-direction: row;
+        justify-content: flex-end;
+      }
+      .action-btn {
+        min-width: 70px;
+        font-size: 11px;
+        padding: 4px 8px !important;
+      }
     }
   `]
 })

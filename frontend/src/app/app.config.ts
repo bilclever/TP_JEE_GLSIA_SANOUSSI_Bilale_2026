@@ -24,6 +24,9 @@ export const appConfig: ApplicationConfig = {
         timeOut: 3000,
         positionClass: 'toast-top-right',
         preventDuplicates: true,
+        maxOpened: 3,
+        autoDismiss: true,
+        newestOnTop: false,
         progressBar: true,
         closeButton: true
       })

@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,6 +26,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final BlacklistService blacklistService;
 
     @Override
     protected void doFilterInternal(
@@ -56,6 +58,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // Extraire le token
         jwt = authHeader.substring(7);
+        // Vérifier blacklist avant de charger l'utilisateur
+        if (blacklistService.isRevoked(jwt)) {
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            return;
+        }
         username = jwtService.extractUsername(jwt);
 
         // Si l'utilisateur n'est pas encore authentifié

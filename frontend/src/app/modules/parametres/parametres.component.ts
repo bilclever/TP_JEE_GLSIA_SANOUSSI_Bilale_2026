@@ -98,6 +98,55 @@ import { AuthService, RegisterRequest } from '../../core/services/auth.service';
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
     }
+
+    /* Thème avec bon contraste */
+    ::ng-deep body:not(.light-theme) mat-card-title {
+      color: #ffffff !important;
+    }
+
+    ::ng-deep body.light-theme mat-card-title {
+      color: #0f172a !important;
+    }
+
+    ::ng-deep body:not(.light-theme) mat-card-subtitle {
+      color: #cbd5e1 !important;
+    }
+
+    ::ng-deep body.light-theme mat-card-subtitle {
+      color: #475569 !important;
+    }
+
+    ::ng-deep body:not(.light-theme) .mat-mdc-form-field-label {
+      color: #e2e8f0 !important;
+    }
+
+    ::ng-deep body.light-theme .mat-mdc-form-field-label {
+      color: #0f172a !important;
+    }
+
+    ::ng-deep body:not(.light-theme) .mat-mdc-input-element {
+      color: #ffffff !important;
+    }
+
+    ::ng-deep body.light-theme .mat-mdc-input-element {
+      color: #0f172a !important;
+    }
+
+    ::ng-deep body:not(.light-theme) .mat-mdc-select {
+      color: #ffffff !important;
+    }
+
+    ::ng-deep body.light-theme .mat-mdc-select {
+      color: #0f172a !important;
+    }
+
+    ::ng-deep body:not(.light-theme) .mat-mdc-select-arrow {
+      color: #e2e8f0 !important;
+    }
+
+    ::ng-deep body.light-theme .mat-mdc-select-arrow {
+      color: #0f172a !important;
+    }
   `]
 })
 export class ParametresComponent {

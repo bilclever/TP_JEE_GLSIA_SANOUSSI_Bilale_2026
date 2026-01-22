@@ -43,7 +43,7 @@ import { Observable, debounceTime, switchMap, startWith } from 'rxjs';
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Client</mat-label>
           <input matInput formControlName="clientSearch" 
-                 [matAutocomplete]="auto" placeholder="Rechercher un client...">
+                 [matAutocomplete]="auto" >
           <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayClient"
                            (optionSelected)="onClientSelected($event)">
             <mat-option *ngFor="let client of filteredClients | async" [value]="client">

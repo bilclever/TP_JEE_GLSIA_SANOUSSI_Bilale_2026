@@ -59,7 +59,7 @@ import { Client, ClientCreateRequest } from '../../../core/services/client.servi
                    required 
                    readonly
                    [max]="today"
-                   placeholder="JJ/MM/AAAA"
+                  
                    (focus)="picker.open()"
                    (click)="picker.open()">
             <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
@@ -146,25 +146,49 @@ import { Client, ClientCreateRequest } from '../../../core/services/client.servi
       max-height: 60vh;
       overflow-y: auto;
     }
-    ::ng-deep .mat-mdc-option-text {
+
+    /* Désactive les styles globaux et force le texte saisi en noir uniquement pour ce formulaire */
+    :host ::ng-deep input.mat-mdc-input-element,
+    :host ::ng-deep textarea.mat-mdc-input-element {
+      color: #000000 !important;
+      caret-color: #000000 !important;
+      background-color: #ffffff !important;
+      -webkit-text-fill-color: #000000 !important;
+    }
+    :host ::ng-deep input.mat-mdc-input-element::placeholder,
+    :host ::ng-deep textarea.mat-mdc-input-element::placeholder {
+      color: #000000 !important;
+      opacity: 0.6 !important;
+    }
+    :host ::ng-deep .mat-mdc-form-field-wrapper {
+      background: #ffffff !important;
+    }
+    :host ::ng-deep .mat-mdc-select-value {
       color: #000000 !important;
     }
-    ::ng-deep .mdc-list-item__primary-text {
+    :host ::ng-deep .mat-mdc-select-arrow {
       color: #000000 !important;
     }
-    ::ng-deep .mat-mdc-select-panel {
+    /* Options dropdown (toujours blanc sur noir) */
+    :host ::ng-deep .mat-mdc-option-text {
+      color: #000000 !important;
+    }
+    :host ::ng-deep .mdc-list-item__primary-text {
+      color: #000000 !important;
+    }
+    :host ::ng-deep .mat-mdc-select-panel {
       background-color: #ffffff !important;
     }
-    ::ng-deep .mat-mdc-option {
+    :host ::ng-deep .mat-mdc-option {
       background-color: #ffffff !important;
     }
-    ::ng-deep .mat-mdc-option:hover {
+    :host ::ng-deep .mat-mdc-option:hover {
       background-color: #f5f5f5 !important;
     }
-    ::ng-deep .mat-autocomplete-panel {
+    :host ::ng-deep .mat-autocomplete-panel {
       background-color: #ffffff !important;
     }
-    ::ng-deep .cdk-overlay-pane {
+    :host ::ng-deep .cdk-overlay-pane {
       background-color: #ffffff !important;
     }
   `]

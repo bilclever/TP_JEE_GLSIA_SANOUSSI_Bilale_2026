@@ -122,13 +122,14 @@ interface Transaction {
               <mat-datepicker #endPicker></mat-datepicker>
             </mat-form-field>
 
-            <button mat-raised-button color="warn" (click)="resetFilters()">
+            <button mat-raised-button color="warn" class="filter-btn" (click)="resetFilters()">
               <mat-icon>clear</mat-icon>
               Réinitialiser
             </button>
 
             <button mat-raised-button 
-                    color="accent" 
+                    color="accent"
+                    class="filter-btn" 
                     [matMenuTriggerFor]="exportMenu">
               <mat-icon>download</mat-icon>
               Exporter
@@ -312,12 +313,30 @@ interface Transaction {
       gap: 8px;
       flex-wrap: wrap;
       margin-bottom: 16px;
-      align-items: center;
+      align-items: flex-start;
     }
 
     .filters-section mat-form-field {
       min-width: 100px;
       max-width: 180px;
+    }
+
+    .filter-btn {
+      height: 56px;
+      margin-top: 0 !important;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 20px;
+      font-weight: 500;
+      border-radius: 8px;
+    }
+
+    .filter-btn mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      margin: 0;
     }
 
     .filters-toggle {
@@ -431,6 +450,111 @@ interface Transaction {
     .negative {
       color: #f44336;
       font-weight: 600;
+    }
+
+    /* Light theme: white background, black text - AGGRESSIVE */
+    :host-context(body.light-theme) ::ng-deep .mat-mdc-form-field--outlined .mdc-text-field {
+      background-color: #ffffff !important;
+    }
+
+    :host-context(body.light-theme) ::ng-deep .mat-mdc-form-field .mdc-text-field__input {
+      background-color: #ffffff !important;
+      color: #000000 !important;
+      caret-color: #000000 !important;
+    }
+
+    :host-context(body.light-theme) ::ng-deep .mat-mdc-form-field .mdc-notched-outline__leading,
+    :host-context(body.light-theme) ::ng-deep .mat-mdc-form-field .mdc-notched-outline__notch,
+    :host-context(body.light-theme) ::ng-deep .mat-mdc-form-field .mdc-notched-outline__trailing {
+      border-color: rgba(2, 132, 199, 0.3) !important;
+    }
+
+    :host-context(body.light-theme) ::ng-deep .mat-mdc-form-field-label {
+      color: #64748b !important;
+    }
+
+    :host-context(body.light-theme) ::ng-deep .mat-mdc-form-field--focused .mat-mdc-form-field-label {
+      color: var(--primary) !important;
+    }
+
+    :host-context(body.light-theme) ::ng-deep .mat-mdc-select {
+      color: #000000 !important;
+    }
+
+    :host-context(body.light-theme) ::ng-deep .mat-mdc-select-trigger {
+      background-color: #ffffff !important;
+      color: #000000 !important;
+    }
+
+    :host-context(body.light-theme) ::ng-deep .mdc-select__anchor {
+      background-color: #ffffff !important;
+    }
+
+    :host-context(body.light-theme) ::ng-deep .mdc-select__selected-text {
+      color: #000000 !important;
+    }
+
+    :host-context(body.light-theme) ::ng-deep .mat-mdc-option {
+      color: #000000 !important;
+      background-color: #ffffff !important;
+    }
+
+    :host-context(body.light-theme) ::ng-deep .mat-mdc-option:hover {
+      background-color: rgba(2, 132, 199, 0.1) !important;
+    }
+
+    :host-context(body.light-theme) ::ng-deep .mat-mdc-option.mat-selected {
+      color: var(--primary) !important;
+      background-color: rgba(2, 132, 199, 0.08) !important;
+    }
+
+    /* Panel dropdown background light theme */
+    :host-context(body.light-theme) ::ng-deep .mat-mdc-select-panel {
+      background-color: #ffffff !important;
+    }
+
+    :host-context(body.light-theme) ::ng-deep .mat-mdc-select-panel .mdc-list {
+      background-color: #ffffff !important;
+    }
+
+    /* Dark theme: black background, white text (default) */
+    :host-context(body:not(.light-theme)) ::ng-deep .mat-mdc-form-field .mat-mdc-text-field-wrapper {
+      background-color: #1e293b !important;
+    }
+
+    :host-context(body:not(.light-theme)) ::ng-deep .mat-mdc-form-field .mat-mdc-input-element {
+      color: #ffffff !important;
+      caret-color: #ffffff !important;
+    }
+
+    :host-context(body:not(.light-theme)) ::ng-deep .mat-mdc-form-field .mat-mdc-form-field-label {
+      color: #cbd5e1 !important;
+    }
+
+    :host-context(body:not(.light-theme)) ::ng-deep .mat-mdc-select {
+      color: #ffffff !important;
+    }
+
+    :host-context(body:not(.light-theme)) ::ng-deep .mat-mdc-select-trigger {
+      color: #ffffff !important;
+    }
+
+    :host-context(body:not(.light-theme)) ::ng-deep .mat-mdc-option {
+      color: #ffffff !important;
+    }
+
+    :host-context(body:not(.light-theme)) ::ng-deep .mat-mdc-select-panel {
+      background-color: #1e293b !important;
+    }
+
+    :host-context(body:not(.light-theme)) ::ng-deep .mat-mdc-select-panel .mat-mdc-option {
+      background-color: #1e293b !important;
+      color: #ffffff !important;
+    }
+
+    :host-context(body:not(.light-theme)) ::ng-deep .mat-mdc-option.mat-mdc-option-active {
+      background-color: #334155 !important;
+      color: #ffffff !important;
     }
 
     @media (max-width: 768px) {

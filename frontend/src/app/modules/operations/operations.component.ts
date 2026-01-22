@@ -9,8 +9,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { CompteService } from '../../core/services/compte.service';
-import { ToastrService } from 'ngx-toastr';
+import { ClientService } from '../../core/services/client.service';
+import { ToastService } from '../../core/services/toast.service';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-operations',
@@ -24,7 +27,8 @@ import { ToastrService } from 'ngx-toastr';
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatDialogModule
   ],
   template: `
     <div class="operations-container">
@@ -44,7 +48,7 @@ import { ToastrService } from 'ngx-toastr';
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>Numéro de compte</mat-label>
                   <input matInput formControlName="numeroCompte" required
-                         placeholder="TN5912345678901234567890"
+                         
                          (blur)="chargerClientDepot()">
                   <mat-icon matPrefix>account_balance</mat-icon>
                 </mat-form-field>
@@ -57,8 +61,8 @@ import { ToastrService } from 'ngx-toastr';
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>Montant</mat-label>
                   <input matInput type="number" formControlName="montant" required
-                         placeholder="0.00" min="0.01">
-                  <span matSuffix>TND</span>
+                          min="1000">
+                  <span matSuffix>FCFA</span>
                   <mat-icon matPrefix>attach_money</mat-icon>
                 </mat-form-field>
 
@@ -87,7 +91,7 @@ import { ToastrService } from 'ngx-toastr';
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>Numéro de compte</mat-label>
                   <input matInput formControlName="numeroCompte" required
-                         placeholder="TN5912345678901234567890"
+                        
                          (blur)="chargerClientRetrait()">
                   <mat-icon matPrefix>account_balance</mat-icon>
                 </mat-form-field>
@@ -100,8 +104,8 @@ import { ToastrService } from 'ngx-toastr';
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>Montant</mat-label>
                   <input matInput type="number" formControlName="montant" required
-                         placeholder="0.00" min="0.01">
-                  <span matSuffix>TND</span>
+                          min="1000">
+                  <span matSuffix>FCFA</span>
                   <mat-icon matPrefix>attach_money</mat-icon>
                 </mat-form-field>
 
@@ -130,7 +134,7 @@ import { ToastrService } from 'ngx-toastr';
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>Compte source</mat-label>
                   <input matInput formControlName="numeroCompteSource" required
-                         placeholder="TN5912345678901234567890"
+                         
                          (blur)="chargerClientSource()">
                   <mat-icon matPrefix>account_balance</mat-icon>
                 </mat-form-field>
@@ -143,7 +147,7 @@ import { ToastrService } from 'ngx-toastr';
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>Compte destination</mat-label>
                   <input matInput formControlName="numeroCompteDestination" required
-                         placeholder="TN5987654321098765432109"
+                         
                          (blur)="chargerClientDestination()">
                   <mat-icon matPrefix>account_balance</mat-icon>
                 </mat-form-field>
@@ -156,8 +160,8 @@ import { ToastrService } from 'ngx-toastr';
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>Montant</mat-label>
                   <input matInput type="number" formControlName="montant" required
-                         placeholder="0.00" min="0.01">
-                  <span matSuffix>TND</span>
+                          min="1000">
+                  <span matSuffix>FCFA</span>
                   <mat-icon matPrefix>attach_money</mat-icon>
                 </mat-form-field>
 
@@ -185,6 +189,7 @@ import { ToastrService } from 'ngx-toastr';
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      color: inherit;
     }
 
     .header {
@@ -195,7 +200,7 @@ import { ToastrService } from 'ngx-toastr';
     .header h1 {
       font-size: clamp(18px, 3vw, 22px);
       font-weight: 600;
-      color: #333;
+      color: inherit;
       margin: 0;
     }
 
@@ -214,9 +219,72 @@ import { ToastrService } from 'ngx-toastr';
       width: 100%;
     }
 
-    .operation-card {
+    ::ng-deep mat-tab-group {
+      background: transparent;
+    }
+
+    ::ng-deep .mat-mdc-tab-header {
+      background: rgba(15, 23, 42, 0.85) !important;
+      border-bottom: 1px solid rgba(34, 211, 238, 0.15) !important;
+    }
+
+    :host-context(body.light-theme) ::ng-deep .mat-mdc-tab-header {
+      background: rgba(255, 255, 255, 0.95) !important;
+      border-bottom: 1px solid rgba(2, 132, 199, 0.15) !important;
+    }
+
+    ::ng-deep .mat-mdc-tab-labels {
+      background: transparent !important;
+    }
+
+    ::ng-deep .mat-mdc-tab {
+      color: #94a3b8 !important;
+    }
+
+    ::ng-deep .mat-mdc-tab.mdc-tab--active {
+      color: var(--primary) !important;
+    }
+
+    :host-context(body.light-theme) ::ng-deep .mat-mdc-tab {
+      color: #64748b !important;
+    }
+
+    :host-context(body.light-theme) ::ng-deep .mat-mdc-tab.mdc-tab--active {
+      color: var(--primary) !important;
+    }
+
+    ::ng-deep .mat-mdc-tab-body-content {
+      background: transparent;
+    }
+
+    ::ng-deep .mat-mdc-tab-body-wrapper {
+      background: transparent !important;
+    }
+
+    ::ng-deep .mat-mdc-tab-body {
+      background: transparent !important;
+    }
+
+    ::ng-deep .operation-card {
       margin-top: 8px;
-      border-radius: 8px;
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.9) !important;
+      color: #e2e8f0 !important;
+      border: 1px solid rgba(34, 211, 238, 0.18) !important;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4), 0 0 0 1px rgba(34, 211, 238, 0.08) !important;
+      backdrop-filter: blur(8px) !important;
+    }
+
+    :host-context(body.light-theme) ::ng-deep .operation-card {
+      background: #ffffff !important;
+      color: #0f172a !important;
+      border: 1px solid rgba(2, 132, 199, 0.14) !important;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08) !important;
+      backdrop-filter: none !important;
+    }
+
+    :host-context(body.light-theme) ::ng-deep .operation-card h2 {
+      color: #0f172a !important;
     }
 
     mat-card-content {
@@ -273,7 +341,7 @@ import { ToastrService } from 'ngx-toastr';
 
     h2 {
       text-align: center;
-      color: #333;
+      color: inherit;
       margin-bottom: 12px;
       font-size: clamp(16px, 2.5vw, 18px);
       font-weight: 600;
@@ -308,17 +376,23 @@ import { ToastrService } from 'ngx-toastr';
     }
 
     .client-info {
-      background-color: #f0f4ff;
+      background-color: rgba(59, 130, 246, 0.08);
       border-left: 4px solid #2196f3;
       padding: 8px 12px;
-      border-radius: 4px;
+      border-radius: 6px;
       margin-bottom: 8px;
+      color: inherit;
+    }
+
+    :host-context(body.light-theme) .client-info {
+      background-color: rgba(59, 130, 246, 0.12);
+      color: #0f172a;
     }
 
     .client-info p {
       margin: 3px 0;
       font-size: 12px;
-      color: #333;
+      color: inherit;
     }
 
     .client-info strong {
@@ -339,8 +413,10 @@ export class OperationsComponent {
   constructor(
     private fb: FormBuilder,
     private compteService: CompteService,
-    private toastr: ToastrService,
-    private cdr: ChangeDetectorRef
+    private clientService: ClientService,
+    private toast: ToastService,
+    private cdr: ChangeDetectorRef,
+    private dialog: MatDialog
   ) {
     this.depotForm = this.fb.group({
       numeroCompte: ['', Validators.required],
@@ -364,17 +440,28 @@ export class OperationsComponent {
     if (numeroCompte) {
       this.compteService.getCompteByNumero(numeroCompte).subscribe({
         next: (compte: any) => {
-          setTimeout(() => {
-            this.clientDepot = compte.client;
-            this.cdr.markForCheck();
-          });
+          if (compte.clientId) {
+            this.clientService.getClient(compte.clientId).subscribe({
+              next: (client: any) => {
+                this.clientDepot = client;
+                this.cdr.markForCheck();
+              },
+              error: () => {
+                this.clientDepot = null;
+                this.toast.error('Client non trouvé', 'Erreur');
+              }
+            });
+          } else {
+            this.clientDepot = null;
+            this.toast.error('Compte non trouvé', 'Erreur');
+          }
         },
         error: () => {
           setTimeout(() => {
             this.clientDepot = null;
             this.cdr.markForCheck();
           });
-          this.toastr.error('Compte non trouvé', 'Erreur');
+          this.toast.error('Compte non trouvé', 'Erreur');
         }
       });
     }
@@ -382,35 +469,62 @@ export class OperationsComponent {
 
   effectuerDepot(): void {
     if (this.depotForm.valid) {
-      this.isLoading = true;
       const { numeroCompte, montant } = this.depotForm.value;
+      if (!this.clientDepot) {
+        this.toast.warning('Veuillez d\'abord charger les informations du compte', 'Client non chargé');
+        return;
+      }
 
-      this.compteService.effectuerDepot(numeroCompte, montant, '').subscribe({
-        next: (response) => {
-          this.toastr.success(
-            `Montant: ${montant} TND<br>Référence: ${response.reference}<br>Statut: ${response.statut}`,
-            '✓ Dépôt réussi',
-            { timeOut: 4000, enableHtml: true }
-          );
-          this.depotForm.reset();
-          this.clientDepot = null;
-          setTimeout(() => {
-            this.isLoading = false;
-            this.cdr.markForCheck();
-          });
-        },
-        error: (error) => {
-          const errorMsg = error.error?.message || error.statusText || 'Erreur lors du dépôt';
-          this.toastr.error(
-            `${errorMsg}`,
-            '✗ Dépôt échoué',
-            { timeOut: 5000 }
-          );
-          setTimeout(() => {
-            this.isLoading = false;
-            this.cdr.markForCheck();
-          });
+      const clientName = this.clientDepot?.fullName || `${this.clientDepot?.prenom} ${this.clientDepot?.nom}`.trim() || 'N/A';
+      const clientEmail = this.clientDepot?.email || 'N/A';
+
+      const dialogData: ConfirmDialogData = {
+        title: 'Confirmer le dépôt',
+        type: 'info',
+        message: 'Vérifiez les informations avant de valider.',
+        details: [
+          { label: 'Compte', value: numeroCompte },
+          { label: 'Montant', value: `${montant} FCFA` },
+          { label: 'Client', value: clientName },
+          { label: 'Email', value: clientEmail }
+        ],
+        confirmText: 'Confirmer',
+        cancelText: 'Annuler'
+      };
+
+      this.dialog.open(ConfirmDialogComponent, { data: dialogData, width: '360px', maxWidth: '95vw' }).afterClosed().subscribe((confirmed: boolean) => {
+        if (!confirmed) {
+          return;
         }
+
+        this.isLoading = true;
+        this.compteService.effectuerDepot(numeroCompte, montant, '').subscribe({
+          next: (response) => {
+            this.toast.success(
+              `Montant: ${montant} FCFA<br>Référence: ${response.reference}<br>Statut: ${response.statut}`,
+              '✓ Dépôt réussi',
+              { timeOut: 4000, enableHtml: true }
+            );
+            this.depotForm.reset();
+            this.clientDepot = null;
+            setTimeout(() => {
+              this.isLoading = false;
+              this.cdr.markForCheck();
+            });
+          },
+          error: (error) => {
+            const errorMsg = error.error?.message || error.statusText || 'Erreur lors du dépôt';
+            this.toast.error(
+              `${errorMsg}`,
+              '✗ Dépôt échoué',
+              { timeOut: 5000 }
+            );
+            setTimeout(() => {
+              this.isLoading = false;
+              this.cdr.markForCheck();
+            });
+          }
+        });
       });
     }
   }
@@ -420,17 +534,28 @@ export class OperationsComponent {
     if (numeroCompte) {
       this.compteService.getCompteByNumero(numeroCompte).subscribe({
         next: (compte: any) => {
-          setTimeout(() => {
-            this.clientRetrait = compte.client;
-            this.cdr.markForCheck();
-          });
+          if (compte.clientId) {
+            this.clientService.getClient(compte.clientId).subscribe({
+              next: (client: any) => {
+                this.clientRetrait = client;
+                this.cdr.markForCheck();
+              },
+              error: () => {
+                this.clientRetrait = null;
+                this.toast.error('Client non trouvé', 'Erreur');
+              }
+            });
+          } else {
+            this.clientRetrait = null;
+            this.toast.error('Compte non trouvé', 'Erreur');
+          }
         },
         error: () => {
           setTimeout(() => {
             this.clientRetrait = null;
             this.cdr.markForCheck();
           });
-          this.toastr.error('Compte non trouvé', 'Erreur');
+          this.toast.error('Compte non trouvé', 'Erreur');
         }
       });
     }
@@ -438,65 +563,89 @@ export class OperationsComponent {
 
   effectuerRetrait(): void {
     if (this.retraitForm.valid) {
-      this.isLoading = true;
       const { numeroCompte, montant } = this.retraitForm.value;
 
-      // Vérifier le solde avant d'effectuer le retrait
-      this.compteService.getCompteByNumero(numeroCompte).subscribe({
-        next: (compte: any) => {
-          if (compte.solde < montant) {
-            // Solde insuffisant
+      if (!this.clientRetrait) {
+        this.toast.warning('Veuillez d\'abord charger les informations du compte', 'Client non chargé');
+        return;
+      }
+
+      const clientName = this.clientRetrait?.fullName || `${this.clientRetrait?.prenom} ${this.clientRetrait?.nom}`.trim() || 'N/A';
+      const clientEmail = this.clientRetrait?.email || 'N/A';
+
+      const dialogData: ConfirmDialogData = {
+        title: 'Confirmer le retrait',
+        type: 'warning',
+        message: 'Confirmez avant de débiter le compte.',
+        details: [
+          { label: 'Compte', value: numeroCompte },
+          { label: 'Montant', value: `${montant} FCFA` },
+          { label: 'Client', value: clientName },
+          { label: 'Email', value: clientEmail }
+        ]
+      };
+
+      this.dialog.open(ConfirmDialogComponent, { data: dialogData, width: '360px', maxWidth: '95vw' }).afterClosed().subscribe((confirmed: boolean) => {
+        if (!confirmed) {
+          return;
+        }
+
+        this.isLoading = true;
+        // Vérifier le solde avant d'effectuer le retrait
+        this.compteService.getCompteByNumero(numeroCompte).subscribe({
+          next: (compte: any) => {
+            if (compte.solde < montant) {
+              setTimeout(() => {
+                this.toast.warning(
+                  `Solde disponible: ${compte.solde} FCFA<br>Montant demandé: ${montant} FCFA<br>Montant manquant: ${(montant - compte.solde).toFixed(2)} FCFA`,
+                  '⚠ Solde insuffisant',
+                  { timeOut: 5000, enableHtml: true }
+                );
+                this.isLoading = false;
+                this.cdr.markForCheck();
+              });
+            } else {
+              this.compteService.effectuerRetrait(numeroCompte, montant, '').subscribe({
+                next: (response) => {
+                  this.toast.success(
+                    `Montant: ${montant} FCFA<br>Référence: ${response.reference}<br>Statut: ${response.statut}`,
+                    '✓ Retrait réussi',
+                    { timeOut: 4000, enableHtml: true }
+                  );
+                  this.retraitForm.reset();
+                  this.clientRetrait = null;
+                  setTimeout(() => {
+                    this.isLoading = false;
+                    this.cdr.markForCheck();
+                  });
+                },
+                error: (error) => {
+                  const errorMsg = error.error?.message || error.statusText || 'Erreur lors du retrait';
+                  this.toast.error(
+                    `${errorMsg}`,
+                    '✗ Retrait échoué',
+                    { timeOut: 5000 }
+                  );
+                  setTimeout(() => {
+                    this.isLoading = false;
+                    this.cdr.markForCheck();
+                  });
+                }
+              });
+            }
+          },
+          error: () => {
             setTimeout(() => {
-              this.toastr.warning(
-                `Solde disponible: ${compte.solde} TND<br>Montant demandé: ${montant} TND<br>Montant manquant: ${(montant - compte.solde).toFixed(2)} TND`,
-                '⚠ Solde insuffisant',
-                { timeOut: 5000, enableHtml: true }
+              this.toast.error(
+                'Compte non trouvé',
+                '✗ Erreur',
+                { timeOut: 5000 }
               );
               this.isLoading = false;
               this.cdr.markForCheck();
             });
-          } else {
-            // Solde suffisant, effectuer le retrait
-            this.compteService.effectuerRetrait(numeroCompte, montant, '').subscribe({
-              next: (response) => {
-                this.toastr.success(
-                  `Montant: ${montant} TND<br>Référence: ${response.reference}<br>Statut: ${response.statut}`,
-                  '✓ Retrait réussi',
-                  { timeOut: 4000, enableHtml: true }
-                );
-                this.retraitForm.reset();
-                this.clientRetrait = null;
-                setTimeout(() => {
-                  this.isLoading = false;
-                  this.cdr.markForCheck();
-                });
-              },
-              error: (error) => {
-                const errorMsg = error.error?.message || error.statusText || 'Erreur lors du retrait';
-                this.toastr.error(
-                  `${errorMsg}`,
-                  '✗ Retrait échoué',
-                  { timeOut: 5000 }
-                );
-                setTimeout(() => {
-                  this.isLoading = false;
-                  this.cdr.markForCheck();
-                });
-              }
-            });
           }
-        },
-        error: () => {
-          setTimeout(() => {
-            this.toastr.error(
-              'Compte non trouvé',
-              '✗ Erreur',
-              { timeOut: 5000 }
-            );
-            this.isLoading = false;
-            this.cdr.markForCheck();
-          });
-        }
+        });
       });
     }
   }
@@ -506,17 +655,28 @@ export class OperationsComponent {
     if (numeroCompte) {
       this.compteService.getCompteByNumero(numeroCompte).subscribe({
         next: (compte: any) => {
-          setTimeout(() => {
-            this.clientSource = compte.client;
-            this.cdr.markForCheck();
-          });
+          if (compte.clientId) {
+            this.clientService.getClient(compte.clientId).subscribe({
+              next: (client: any) => {
+                this.clientSource = client;
+                this.cdr.markForCheck();
+              },
+              error: () => {
+                this.clientSource = null;
+                this.toast.error('Compte source non trouvé', 'Erreur');
+              }
+            });
+          } else {
+            this.clientSource = null;
+            this.toast.error('Compte non trouvé', 'Erreur');
+          }
         },
         error: () => {
           setTimeout(() => {
             this.clientSource = null;
             this.cdr.markForCheck();
           });
-          this.toastr.error('Compte source non trouvé', 'Erreur');
+          this.toast.error('Compte source non trouvé', 'Erreur');
         }
       });
     }
@@ -527,17 +687,28 @@ export class OperationsComponent {
     if (numeroCompte) {
       this.compteService.getCompteByNumero(numeroCompte).subscribe({
         next: (compte: any) => {
-          setTimeout(() => {
-            this.clientDestination = compte.client;
-            this.cdr.markForCheck();
-          });
+          if (compte.clientId) {
+            this.clientService.getClient(compte.clientId).subscribe({
+              next: (client: any) => {
+                this.clientDestination = client;
+                this.cdr.markForCheck();
+              },
+              error: () => {
+                this.clientDestination = null;
+                this.toast.error('Compte destination non trouvé', 'Erreur');
+              }
+            });
+          } else {
+            this.clientDestination = null;
+            this.toast.error('Compte non trouvé', 'Erreur');
+          }
         },
         error: () => {
           setTimeout(() => {
             this.clientDestination = null;
             this.cdr.markForCheck();
           });
-          this.toastr.error('Compte destination non trouvé', 'Erreur');
+          this.toast.error('Compte destination non trouvé', 'Erreur');
         }
       });
     }
@@ -545,66 +716,91 @@ export class OperationsComponent {
 
   effectuerVirement(): void {
     if (this.virementForm.valid) {
-      this.isLoading = true;
       const { numeroCompteSource, numeroCompteDestination, montant } = this.virementForm.value;
 
-      // Vérifier le solde du compte source avant d'effectuer le virement
-      this.compteService.getCompteByNumero(numeroCompteSource).subscribe({
-        next: (compte: any) => {
-          if (compte.solde < montant) {
-            // Solde insuffisant
+      if (!this.clientSource || !this.clientDestination) {
+        this.toast.warning('Veuillez d\'abord charger les informations des deux comptes', 'Clients non chargés');
+        return;
+      }
+
+      const clientSourceName = this.clientSource?.fullName || `${this.clientSource?.prenom} ${this.clientSource?.nom}`.trim() || 'N/A';
+      const clientDestinationName = this.clientDestination?.fullName || `${this.clientDestination?.prenom} ${this.clientDestination?.nom}`.trim() || 'N/A';
+
+      const dialogData: ConfirmDialogData = {
+        title: 'Confirmer le virement',
+        type: 'info',
+        message: 'Validez les informations avant de transférer.',
+        details: [
+          { label: 'Compte source', value: numeroCompteSource },
+          { label: 'Client source', value: clientSourceName },
+          { label: 'Compte destination', value: numeroCompteDestination },
+          { label: 'Client destination', value: clientDestinationName },
+          { label: 'Montant', value: `${montant} FCFA` }
+        ]
+      };
+
+      this.dialog.open(ConfirmDialogComponent, { data: dialogData, width: '360px', maxWidth: '95vw' }).afterClosed().subscribe((confirmed: boolean) => {
+        if (!confirmed) {
+          return;
+        }
+
+        this.isLoading = true;
+        // Vérifier le solde du compte source avant d'effectuer le virement
+        this.compteService.getCompteByNumero(numeroCompteSource).subscribe({
+          next: (compte: any) => {
+            if (compte.solde < montant) {
+              setTimeout(() => {
+                this.toast.warning(
+                  `Solde disponible: ${compte.solde} FCFA<br>Montant demandé: ${montant} FCFA<br>Montant manquant: ${(montant - compte.solde).toFixed(2)} FCFA`,
+                  '⚠ Solde insuffisant',
+                  { timeOut: 5000, enableHtml: true }
+                );
+                this.isLoading = false;
+                this.cdr.markForCheck();
+              });
+            } else {
+              this.compteService.effectuerVirement(numeroCompteSource, numeroCompteDestination, montant, '').subscribe({
+                next: (response) => {
+                  this.toast.success(
+                    `Montant: ${montant} FCFA<br>Référence: ${response.reference}<br>Statut: ${response.statut}`,
+                    '✓ Virement réussi',
+                    { timeOut: 4000, enableHtml: true }
+                  );
+                  this.virementForm.reset();
+                  this.clientSource = null;
+                  this.clientDestination = null;
+                  setTimeout(() => {
+                    this.isLoading = false;
+                    this.cdr.markForCheck();
+                  });
+                },
+                error: (error) => {
+                  const errorMsg = error.error?.message || error.statusText || 'Erreur lors du virement';
+                  this.toast.error(
+                    `${errorMsg}`,
+                    '✗ Virement échoué',
+                    { timeOut: 5000 }
+                  );
+                  setTimeout(() => {
+                    this.isLoading = false;
+                    this.cdr.markForCheck();
+                  });
+                }
+              });
+            }
+          },
+          error: () => {
             setTimeout(() => {
-              this.toastr.warning(
-                `Solde disponible: ${compte.solde} TND<br>Montant demandé: ${montant} TND<br>Montant manquant: ${(montant - compte.solde).toFixed(2)} TND`,
-                '⚠ Solde insuffisant',
-                { timeOut: 5000, enableHtml: true }
+              this.toast.error(
+                'Compte source non trouvé',
+                '✗ Erreur',
+                { timeOut: 5000 }
               );
               this.isLoading = false;
               this.cdr.markForCheck();
             });
-          } else {
-            // Solde suffisant, effectuer le virement
-            this.compteService.effectuerVirement(numeroCompteSource, numeroCompteDestination, montant, '').subscribe({
-              next: (response) => {
-                this.toastr.success(
-                  `Montant: ${montant} TND<br>Référence: ${response.reference}<br>Statut: ${response.statut}`,
-                  '✓ Virement réussi',
-                  { timeOut: 4000, enableHtml: true }
-                );
-                this.virementForm.reset();
-                this.clientSource = null;
-                this.clientDestination = null;
-                setTimeout(() => {
-                  this.isLoading = false;
-                  this.cdr.markForCheck();
-                });
-              },
-              error: (error) => {
-                const errorMsg = error.error?.message || error.statusText || 'Erreur lors du virement';
-                this.toastr.error(
-                  `${errorMsg}`,
-                  '✗ Virement échoué',
-                  { timeOut: 5000 }
-                );
-                setTimeout(() => {
-                  this.isLoading = false;
-                  this.cdr.markForCheck();
-                });
-              }
-            });
           }
-        },
-        error: () => {
-          setTimeout(() => {
-            this.toastr.error(
-              'Compte source non trouvé',
-              '✗ Erreur',
-              { timeOut: 5000 }
-            );
-            this.isLoading = false;
-            this.cdr.markForCheck();
-          });
-        }
+        });
       });
     }
   }

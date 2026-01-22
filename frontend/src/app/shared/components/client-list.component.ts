@@ -54,7 +54,7 @@ import { ToastrService } from 'ngx-toastr';
           <div class="search-bar">
             <mat-form-field appearance="outline" class="search-field">
               <mat-label>Rechercher un client</mat-label>
-              <input matInput [(ngModel)]="searchTerm" (keyup.enter)="applyFilters(true)" placeholder="Nom, email, téléphone...">
+              <input matInput [(ngModel)]="searchTerm" (keyup.enter)="applyFilters(true)" >
               <button mat-icon-button matSuffix (click)="applyFilters(true)">
                 <mat-icon>search</mat-icon>
               </button>
@@ -67,7 +67,7 @@ import { ToastrService } from 'ngx-toastr';
             </mat-chip-listbox>
           </div>
 
-          <div class="table-container" *ngIf="!isLoading; else loading">
+          <div class="table-container" *ngIf="!isLoading">
             <table mat-table [dataSource]="dataSource" matSort class="clients-table">
 
               <ng-container matColumnDef="fullName">
@@ -164,16 +164,13 @@ import { ToastrService } from 'ngx-toastr';
             <p>Commencez par ajouter un nouveau client</p>
             
           </div>
+
+          <div *ngIf="isLoading" class="loading-overlay">
+            <mat-spinner diameter="50"></mat-spinner>
+          </div>
         </mat-card-content>
       </mat-card>
     </div>
-
-    <ng-template #loading>
-      <div class="loading-state">
-        <mat-spinner diameter="50"></mat-spinner>
-        <p>Chargement des clients...</p>
-      </div>
-    </ng-template>
   `,
   styles: [`
     .clients-container {
@@ -228,6 +225,15 @@ import { ToastrService } from 'ngx-toastr';
       display: flex;
       align-items: center;
       gap: 12px;
+      width: 100%;
+    }
+
+    .client-cell > div {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
 
     .avatar {
@@ -244,12 +250,41 @@ import { ToastrService } from 'ngx-toastr';
 
     .client-name {
       font-weight: 700;
-      color: #0f172a;
+      color: #fff;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .client-email {
       font-size: 12px;
-      color: #64748b;
+      color: rgba(255, 255, 255, 0.7);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    body.light-theme .client-name {
+      color: #000000 !important;
+    }
+
+    body.light-theme .client-email {
+      color: #475569 !important;
+    }
+
+    /* Ensure table text is dark in light theme */
+    :host-context(body.light-theme) ::ng-deep .mat-mdc-table .mat-mdc-cell,
+    :host-context(body.light-theme) ::ng-deep .mat-mdc-table .mat-mdc-header-cell {
+      color: #0f172a !important;
+    }
+
+    /* Increase specificity for client name/email inside Material table */
+    :host-context(body.light-theme) ::ng-deep .mat-mdc-table .client-name {
+      color: #000000 !important;
+    }
+
+    :host-context(body.light-theme) ::ng-deep .mat-mdc-table .client-email {
+      color: #334155 !important;
     }
 
     mat-chip.active {
@@ -306,6 +341,24 @@ import { ToastrService } from 'ngx-toastr';
     .loading-state p {
       margin-top: 16px;
       color: #666;
+    }
+
+    .loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      border-radius: 4px;
+    }
+
+    mat-card {
+      position: relative;
     }
   `]
 })

@@ -1,4 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef, HostListener } from '@angular/core';
+import { ThemeService } from '../../core/services/theme.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -8,6 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatInputModule } from '@angular/material/input';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BaseChartDirective } from 'ng2-charts';
@@ -31,6 +33,7 @@ import { catchError } from 'rxjs/operators';
     MatIconModule,
     MatSelectModule,
     MatFormFieldModule,
+    MatInputModule,
     MatDatepickerModule,
     MatNativeDateModule,
     MatTabsModule,
@@ -38,7 +41,7 @@ import { catchError } from 'rxjs/operators';
     BaseChartDirective
   ],
   template: `
-    <div class="rapports-container">
+    <div class="rapports-container" [ngClass]="{ 'light-theme': isLightTheme }">
       <div class="header">
         <div class="actions">
           <div class="filter-group">
@@ -187,7 +190,7 @@ import { catchError } from 'rxjs/operators';
                 <mat-card-content>
                   <div class="stats-grid">
                     <div class="stat-item">
-                      <mat-icon style="color: #000000">arrow_downward</mat-icon>
+                      <mat-icon class="stat-item-icon">arrow_downward</mat-icon>
                       <div>
                         <strong>Dépôts</strong>
                         <p>{{ stats.depots.nombre }} transactions</p>
@@ -195,7 +198,7 @@ import { catchError } from 'rxjs/operators';
                       </div>
                     </div>
                     <div class="stat-item">
-                      <mat-icon style="color: #000000">arrow_upward</mat-icon>
+                      <mat-icon class="stat-item-icon">arrow_upward</mat-icon>
                       <div>
                         <strong>Retraits</strong>
                         <p>{{ stats.retraits.nombre }} transactions</p>
@@ -203,7 +206,7 @@ import { catchError } from 'rxjs/operators';
                       </div>
                     </div>
                     <div class="stat-item">
-                      <mat-icon style="color: #000000">swap_horiz</mat-icon>
+                      <mat-icon class="stat-item-icon">swap_horiz</mat-icon>
                       <div>
                         <strong>Virements</strong>
                         <p>{{ stats.virements.nombre }} transactions</p>
@@ -323,7 +326,7 @@ import { catchError } from 'rxjs/operators';
     .filter-group {
       display: flex;
       gap: 12px;
-      align-items: center;
+      align-items: flex-start;
       flex-wrap: wrap;
       margin: 0;
     }
@@ -333,12 +336,16 @@ import { catchError } from 'rxjs/operators';
       height: 36px;
       display: flex;
       align-items: center;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+      transform: translateY(-4px);
     }
 
     ::ng-deep .filter-group .mat-mdc-form-field {
       height: 36px !important;
       display: flex !important;
       align-items: center !important;
+      margin-bottom: 0 !important;
     }
 
     ::ng-deep .filter-group .mat-mdc-form-field-wrapper {
@@ -357,33 +364,108 @@ import { catchError } from 'rxjs/operators';
     }
 
     ::ng-deep .filter-group .mat-mdc-form-field .mdc-text-field--filled {
+      background-color: rgba(148, 163, 184, 0.1) !important;
+    }
+
+    ::ng-deep .rapports-container.light-theme .filter-group .mat-mdc-form-field .mdc-text-field--filled {
       background-color: white !important;
     }
 
     ::ng-deep .filter-group .mat-mdc-select {
-      color: black !important;
+      color: #ffffff !important;
+    }
+
+    ::ng-deep .rapports-container.light-theme .filter-group .mat-mdc-select {
+      color: #000000 !important;
+    }
+
+    /* Field container backgrounds */
+    :host-context(body:not(.light-theme)) ::ng-deep .filter-group .mat-mdc-form-field .mat-mdc-text-field-wrapper,
+    :host-context(body:not(.light-theme)) ::ng-deep .filter-group .mat-mdc-form-field .mdc-text-field {
+      background-color: #0f172a !important;
+    }
+
+    :host-context(body.light-theme) ::ng-deep .filter-group .mat-mdc-form-field .mat-mdc-text-field-wrapper,
+    :host-context(body.light-theme) ::ng-deep .filter-group .mat-mdc-form-field .mdc-text-field {
+      background-color: #ffffff !important;
+    }
+
+    /* Light theme: force select trigger/value readable */
+    :host-context(body.light-theme) ::ng-deep .filter-group .mdc-select__anchor {
+      background-color: #ffffff !important;
+      color: #000000 !important;
+    }
+
+    :host-context(body.light-theme) ::ng-deep .filter-group .mdc-select__selected-text,
+    :host-context(body.light-theme) ::ng-deep .filter-group .mat-mdc-select-value,
+    :host-context(body.light-theme) ::ng-deep .filter-group .mat-mdc-select-value-text,
+    :host-context(body.light-theme) ::ng-deep .filter-group .mat-mdc-select-placeholder {
+      color: #000000 !important;
+      background-color: transparent !important;
+    }
+
+    /* Dark theme: force select trigger/value dark background with white text */
+    :host-context(body:not(.light-theme)) ::ng-deep .filter-group .mdc-select__anchor {
+      background-color: #1e293b !important;
+      color: #ffffff !important;
+    }
+
+    :host-context(body:not(.light-theme)) ::ng-deep .filter-group .mdc-select__selected-text,
+    :host-context(body:not(.light-theme)) ::ng-deep .filter-group .mat-mdc-select-value,
+    :host-context(body:not(.light-theme)) ::ng-deep .filter-group .mat-mdc-select-value-text,
+    :host-context(body:not(.light-theme)) ::ng-deep .filter-group .mat-mdc-select-placeholder {
+      color: #ffffff !important;
+      background-color: transparent !important;
     }
 
     ::ng-deep .filter-group .mat-mdc-select-arrow {
-      color: black !important;
+      color: #ffffff !important;
+    }
+
+    ::ng-deep .rapports-container.light-theme .filter-group .mat-mdc-select-arrow {
+      color: #000000 !important;
     }
 
     ::ng-deep .filter-group .mat-mdc-form-field .mat-mdc-form-field-label {
-      color: black !important;
+      color: #ffffff !important;
     }
 
+    ::ng-deep .rapports-container.light-theme .filter-group .mat-mdc-form-field .mat-mdc-form-field-label {
+      color: #000000 !important;
+    }
+
+    /* Options panel backgrounds */
     ::ng-deep .mat-mdc-option {
-      background-color: white !important;
-      color: black !important;
+      background-color: #0f172a !important;
+      color: #ffffff !important;
     }
 
-    ::ng-deep .mat-mdc-option:hover {
-      background-color: #f0f0f0 !important;
+    ::ng-deep .mat-mdc-option:hover,
+    ::ng-deep .mat-mdc-option.mat-active {
+      background-color: #1e293b !important;
+      color: #ffffff !important;
     }
 
     ::ng-deep .mat-mdc-option.mat-selected {
+      background-color: #1e293b !important;
+      color: #ffffff !important;
+    }
+
+    /* Light theme overrides for options */
+    :host-context(body.light-theme) ::ng-deep .mat-mdc-option {
+      background-color: #ffffff !important;
+      color: #000000 !important;
+    }
+
+    :host-context(body.light-theme) ::ng-deep .mat-mdc-option:hover,
+    :host-context(body.light-theme) ::ng-deep .mat-mdc-option.mat-active {
+      background-color: #f0f0f0 !important;
+      color: #000000 !important;
+    }
+
+    :host-context(body.light-theme) ::ng-deep .mat-mdc-option.mat-selected {
       background-color: #e8f4f8 !important;
-      color: black !important;
+      color: #000000 !important;
     }
 
     .custom-dates {
@@ -400,14 +482,24 @@ import { catchError } from 'rxjs/operators';
       padding: 10px 14px;
       border: 1px dashed rgba(226, 232, 240, 0.4);
       border-radius: 10px;
-      color: #e2e8f0;
+      color: #ffffff;
       background: rgba(148, 163, 184, 0.08);
       font-size: 14px;
+    }
+
+    .rapports-container.light-theme .filter-summary {
+      color: #000000;
+      border: 1px dashed rgba(2, 6, 23, 0.4);
+      background: rgba(241, 245, 249, 0.8);
     }
 
     .filter-summary mat-icon {
       color: #7dd3fc;
       font-size: 18px;
+    }
+
+    .rapports-container.light-theme .filter-summary mat-icon {
+      color: #0284c7;
     }
 
     .loading-container {
@@ -440,12 +532,20 @@ import { catchError } from 'rxjs/operators';
       margin: 0 0 5px 0;
       font-size: 28px;
       font-weight: 600;
-      color: #e2e8f0;
+      color: #ffffff;
+    }
+
+    .rapports-container.light-theme .kpi-content h3 {
+      color: #000000;
     }
 
     .kpi-content p {
       margin: 0 0 5px 0;
-      color: #94a3b8;
+      color: #e2e8f0;
+    }
+
+    .rapports-container.light-theme .kpi-content p {
+      color: #475569;
     }
 
     .trend {
@@ -453,12 +553,21 @@ import { catchError } from 'rxjs/operators';
       padding: 2px 8px;
       border-radius: 12px;
       background: rgba(148, 163, 184, 0.2);
-      color: #e2e8f0;
+      color: #ffffff;
+    }
+
+    .rapports-container.light-theme .trend {
+      color: #000000;
     }
 
     .trend.positive {
       background: rgba(52, 211, 153, 0.2);
       color: #34d399;
+    }
+
+    .rapports-container.light-theme .trend.positive {
+      background: rgba(16, 185, 129, 0.15);
+      color: #059669;
     }
 
     .tab-content {
@@ -491,26 +600,55 @@ import { catchError } from 'rxjs/operators';
       align-items: center;
       gap: 15px;
       padding: 15px;
-      background: #f5f5f5;
+      background: rgba(148, 163, 184, 0.08);
+      border: 1px solid rgba(148, 163, 184, 0.2);
       border-radius: 8px;
+      color: #ffffff;
+    }
+
+    .rapports-container.light-theme .stat-item {
+      background: rgba(241, 245, 249, 0.8);
+      border: 1px solid rgba(2, 6, 23, 0.1);
+      color: #000000;
     }
 
     .stat-item mat-icon {
       font-size: 40px;
       width: 40px;
       height: 40px;
+      color: #ffffff;
+    }
+
+    .rapports-container.light-theme .stat-item mat-icon {
+      color: #000000;
+    }
+
+    .stat-item mat-icon.stat-item-icon {
+      color: #ffffff !important;
+    }
+
+    .rapports-container.light-theme .stat-item mat-icon.stat-item-icon {
+      color: #000000 !important;
     }
 
     .stat-item strong {
       display: block;
       margin-bottom: 5px;
+      color: #ffffff;
+    }
+
+    .rapports-container.light-theme .stat-item strong {
       color: #000000;
     }
 
     .stat-item p {
       margin: 0;
       font-size: 14px;
-      color: #000000;
+      color: #e2e8f0;
+    }
+
+    .rapports-container.light-theme .stat-item p {
+      color: #475569;
     }
 
     .top-clients {
@@ -526,6 +664,10 @@ import { catchError } from 'rxjs/operators';
       border-bottom: 1px solid rgba(148, 163, 184, 0.2);
     }
 
+    .rapports-container.light-theme .client-item {
+      border-bottom: 1px solid rgba(2, 6, 23, 0.1);
+    }
+
     .client-item:last-child {
       border-bottom: none;
     }
@@ -533,17 +675,87 @@ import { catchError } from 'rxjs/operators';
     .client-info strong {
       display: block;
       margin-bottom: 5px;
-      color: #e2e8f0;
+      color: #ffffff;
+    }
+
+    .rapports-container.light-theme .client-info strong {
+      color: #000000;
     }
 
     .client-info span {
       font-size: 14px;
-      color: #94a3b8;
+      color: #e2e8f0;
+    }
+
+    .rapports-container.light-theme .client-info span {
+      color: #475569;
     }
 
     .client-solde {
       font-weight: 600;
       color: #34d399;
+    }
+
+    .rapports-container.light-theme .client-solde {
+      color: #059669;
+    }
+
+    /* Styles pour tous les textes des cartes Material */
+    mat-card-title {
+      color: #ffffff !important;
+    }
+
+    .rapports-container.light-theme mat-card-title {
+      color: #000000 !important;
+    }
+
+    /* Tabs */
+    ::ng-deep .mat-mdc-tab-header-label {
+      color: #e2e8f0 !important;
+    }
+
+    ::ng-deep .mdc-tab__text-label {
+      color: #e2e8f0 !important;
+    }
+
+    ::ng-deep .rapports-container.light-theme .mat-mdc-tab-header-label {
+      color: #0f172a !important;
+    }
+
+    ::ng-deep .rapports-container.light-theme .mdc-tab__text-label {
+      color: #0f172a !important;
+    }
+
+    /* Tous les textes dans les labels */
+    ::ng-deep .mat-mdc-form-field-label {
+      color: #ffffff !important;
+    }
+
+    ::ng-deep .rapports-container.light-theme .mat-mdc-form-field-label {
+      color: #000000 !important;
+    }
+
+    /* Options */
+    ::ng-deep .mat-mdc-option-text {
+      color: #000000 !important;
+    }
+
+    /* Boutons - Icons */
+    .rapports-container mat-icon {
+      color: #ffffff;
+    }
+
+    .rapports-container.light-theme mat-icon {
+      color: #000000;
+    }
+
+    /* Select text */
+    ::ng-deep .mdc-select__selected-text {
+      color: #ffffff !important;
+    }
+
+    ::ng-deep .rapports-container.light-theme .mdc-select__selected-text {
+      color: #000000 !important;
     }
   `]
 })
@@ -553,6 +765,7 @@ export class DashboardComponent implements OnInit {
   dateDebut: Date | null = null;
   dateFin: Date | null = null;
   today = new Date();
+  isLightTheme = false;
 
   kpis = {
     totalComptes: 0,
@@ -587,7 +800,20 @@ export class DashboardComponent implements OnInit {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { display: false }
+        legend: {
+          display: false,
+          labels: { color: '#e2e8f0' }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#e2e8f0' },
+          grid: { color: 'rgba(148, 163, 184, 0.2)' }
+        },
+        y: {
+          ticks: { color: '#e2e8f0' },
+          grid: { color: 'rgba(148, 163, 184, 0.2)' }
+        }
       }
     }
   };
@@ -603,7 +829,12 @@ export class DashboardComponent implements OnInit {
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: { color: '#e2e8f0' }
+        }
+      }
     }
   };
 
@@ -621,7 +852,22 @@ export class DashboardComponent implements OnInit {
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: { color: '#e2e8f0' }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#e2e8f0' },
+          grid: { color: 'rgba(148, 163, 184, 0.2)' }
+        },
+        y: {
+          ticks: { color: '#e2e8f0' },
+          grid: { color: 'rgba(148, 163, 184, 0.2)' }
+        }
+      }
     }
   };
 
@@ -636,7 +882,12 @@ export class DashboardComponent implements OnInit {
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: { color: '#e2e8f0' }
+        }
+      }
     }
   };
 
@@ -654,7 +905,22 @@ export class DashboardComponent implements OnInit {
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: { color: '#e2e8f0' }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#e2e8f0' },
+          grid: { color: 'rgba(148, 163, 184, 0.2)' }
+        },
+        y: {
+          ticks: { color: '#e2e8f0' },
+          grid: { color: 'rgba(148, 163, 184, 0.2)' }
+        }
+      }
     }
   };
 
@@ -664,11 +930,20 @@ export class DashboardComponent implements OnInit {
     private compteService: CompteService,
     private exportService: ExportService,
     private toastr: ToastrService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private theme: ThemeService
   ) {}
 
   ngOnInit(): void {
     this.onPeriodChange();
+    // Appliquer les couleurs des graphiques selon le thème courant
+    this.applyChartTheme();
+    // Réagir aux changements de thème
+    this.theme.isLight$.subscribe((mode: any) => {
+      this.isLightTheme = mode === 'light';
+      this.applyChartTheme();
+      this.cdr.markForCheck();
+    });
   }
 
   @HostListener('window:resize')
@@ -726,6 +1001,20 @@ export class DashboardComponent implements OnInit {
 
         this.kpis.totalClients = clients.length || 0;
         this.kpis.totalComptes = comptesList.length || 0;
+
+        // Calculer les nouveaux comptes ce mois
+        const now = new Date();
+        const debutMois = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+        this.kpis.nouveauxComptes = comptesList.filter((c: any) => {
+          const dateCreation = new Date(c.createdAt || c.dateCreation);
+          return dateCreation >= debutMois;
+        }).length;
+
+        // Calculer les nouveaux clients ce mois
+        this.kpis.nouveauxClients = clients.filter((c: any) => {
+          const dateCreation = new Date(c.createdAt);
+          return dateCreation >= debutMois;
+        }).length;
 
         this.kpis.soldeTotal = comptesList.reduce((sum: number, compte: any) => sum + (compte?.solde || 0), 0);
 
@@ -939,5 +1228,63 @@ export class DashboardComponent implements OnInit {
     setTimeout(() => {
       this.toastr.success('Rapport PDF exporté avec succès');
     }, 1500);
+  }
+
+  private getChartStyleVars(): { text: string; grid: string } {
+    const body = document.body;
+    const styles = getComputedStyle(body);
+    const text = (styles.getPropertyValue('--chart-text') || '').trim() || (this.isLightTheme ? '#ffffff' : '#000000');
+    const grid = (styles.getPropertyValue('--chart-grid') || '').trim() || (this.isLightTheme ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.12)');
+    return { text, grid };
+  }
+
+  private applyChartTheme(): void {
+    const { text, grid } = this.getChartStyleVars();
+    // Transactions Volume
+    if (this.transactionsVolumeChart?.options) {
+      const opts: any = this.transactionsVolumeChart.options;
+      if (opts.plugins?.legend?.labels) opts.plugins.legend.labels.color = text;
+      if (opts.scales?.x?.ticks) opts.scales.x.ticks.color = text;
+      if (opts.scales?.x?.grid) opts.scales.x.grid.color = grid;
+      if (opts.scales?.y?.ticks) opts.scales.y.ticks.color = text;
+      if (opts.scales?.y?.grid) opts.scales.y.grid.color = grid;
+    }
+    // Transactions Type
+    if (this.transactionsTypeChart?.options) {
+      const opts: any = this.transactionsTypeChart.options;
+      if (opts.plugins?.legend?.labels) opts.plugins.legend.labels.color = text;
+    }
+    // Comptes Évolution
+    if (this.comptesEvolutionChart?.options) {
+      const opts: any = this.comptesEvolutionChart.options;
+      if (opts.plugins?.legend?.labels) opts.plugins.legend.labels.color = text;
+      if (opts.scales?.x?.ticks) opts.scales.x.ticks.color = text;
+      if (opts.scales?.x?.grid) opts.scales.x.grid.color = grid;
+      if (opts.scales?.y?.ticks) opts.scales.y.ticks.color = text;
+      if (opts.scales?.y?.grid) opts.scales.y.grid.color = grid;
+    }
+    // Comptes Type
+    if (this.comptesTypeChart?.options) {
+      const opts: any = this.comptesTypeChart.options;
+      if (opts.plugins?.legend?.labels) opts.plugins.legend.labels.color = text;
+    }
+    // Clients Évolution
+    if (this.clientsEvolutionChart?.options) {
+      const opts: any = this.clientsEvolutionChart.options;
+      if (opts.plugins?.legend?.labels) opts.plugins.legend.labels.color = text;
+      if (opts.scales?.x?.ticks) opts.scales.x.ticks.color = text;
+      if (opts.scales?.x?.grid) opts.scales.x.grid.color = grid;
+      if (opts.scales?.y?.ticks) opts.scales.y.ticks.color = text;
+      if (opts.scales?.y?.grid) opts.scales.y.grid.color = grid;
+    }
+
+    // Forcer la recréation des charts pour appliquer les changements
+    this.transactionsVolumeChart = JSON.parse(JSON.stringify(this.transactionsVolumeChart));
+    this.transactionsTypeChart = JSON.parse(JSON.stringify(this.transactionsTypeChart));
+    this.comptesEvolutionChart = JSON.parse(JSON.stringify(this.comptesEvolutionChart));
+    this.comptesTypeChart = JSON.parse(JSON.stringify(this.comptesTypeChart));
+    this.clientsEvolutionChart = JSON.parse(JSON.stringify(this.clientsEvolutionChart));
+    
+    this.cdr.detectChanges();
   }
 }
