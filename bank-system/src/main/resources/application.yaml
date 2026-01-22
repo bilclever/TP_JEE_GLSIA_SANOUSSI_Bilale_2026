@@ -3,9 +3,9 @@ spring:
     name: ega-bank-system
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/bank_system
-    username: postgres
-    password: 1234
+    url: jdbc:postgresql://aws-1-eu-west-1.pooler.supabase.com:5432/postgres
+    username: postgres.gayevgxwfoisshswdgnt
+    password: sanoussibilale
     driver-class-name: org.postgresql.Driver
 
   jpa:

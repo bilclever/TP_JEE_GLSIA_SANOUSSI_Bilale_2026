@@ -152,7 +152,7 @@ import { catchError } from 'rxjs/operators';
             <h3>Aucun compte trouvé</h3>
             <p>Commencez par créer un nouveau compte</p>
             <button mat-raised-button color="primary" (click)="openCreateDialog()">
-              <mat-icon>add</mat-icon>
+              
               Créer un compte
             </button>
           </div>
