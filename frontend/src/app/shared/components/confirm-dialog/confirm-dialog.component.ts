@@ -30,25 +30,25 @@ export interface ConfirmDialogData {
       </mat-icon>
       {{ data.title }}
     </h2>
-    <mat-dialog-content>
-      <p *ngIf="data.message">{{ data.message }}</p>
+    <mat-dialog-content style="color: #000 !important;">
+      <p *ngIf="data.message" style="color: #000 !important;">{{ data.message }}</p>
 
-      <div class="details" *ngIf="data.details?.length">
-        <div class="detail-row" *ngFor="let detail of data.details">
-          <span class="label">{{ detail.label }}:</span>
-          <span class="value">{{ detail.value }}</span>
+      <div class="details" *ngIf="data.details?.length" style="color: #000 !important;">
+        <div class="detail-row" *ngFor="let detail of data.details" style="color: #000 !important; background-color: #f5f5f5 !important;">
+          <span class="label" style="color: #2196f3 !important;">{{ detail.label }}:</span>
+          <span class="value" style="color: #000 !important;">{{ detail.value }}</span>
         </div>
       </div>
     </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="onCancel()" class="action-btn">
+    <mat-dialog-actions align="end" style="color: #000 !important;">
+      <button mat-button (click)="onCancel()" class="action-btn" style="color: #000 !important;">
         {{ data.cancelText || 'Annuler' }}
       </button>
       <button 
         mat-raised-button 
         [color]="data.type === 'danger' ? 'warn' : 'primary'"
         (click)="onConfirm()"
-        class="action-btn">
+        class="action-btn" style="color: #000 !important;">
         {{ data.confirmText || 'Confirmer' }}
       </button>
     </mat-dialog-actions>
@@ -60,10 +60,18 @@ export interface ConfirmDialogData {
       width: 100%;
       color: #000 !important;
     }
-    h2, mat-dialog-content, .details, .detail-row, .label, .value, p, mat-dialog-actions, .action-btn {
+    :host ::ng-deep h2,
+    :host ::ng-deep mat-dialog-content,
+    :host ::ng-deep .details,
+    :host ::ng-deep .detail-row,
+    :host ::ng-deep .label,
+    :host ::ng-deep .value,
+    :host ::ng-deep p,
+    :host ::ng-deep mat-dialog-actions,
+    :host ::ng-deep .action-btn {
       color: #000 !important;
     }
-    .detail-row {
+    :host ::ng-deep .detail-row {
       background-color: #f5f5f5 !important;
     }
     .label {

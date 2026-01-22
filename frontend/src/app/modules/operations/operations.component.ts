@@ -347,10 +347,12 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/componen
       font-weight: 600;
     }
 
+
     form {
       display: flex;
       flex-direction: column;
       gap: 8px;
+      padding-bottom: 24px; /* Ajout pour éviter que le bouton soit coupé */
     }
 
     @media (max-width: 600px) {
