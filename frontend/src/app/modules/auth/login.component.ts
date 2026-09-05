@@ -120,10 +120,6 @@ import { ToastrService } from 'ngx-toastr';
             </form>
           </mat-card-content>
 
-          <div class="card-footer">
-            <span class="status-dot"></span>
-            <span>Authentification sécurisée et session contrôlée</span>
-          </div>
         </mat-card>
       </div>
     </div>
@@ -145,7 +141,7 @@ import { ToastrService } from 'ngx-toastr';
         radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.14), transparent 28%),
         linear-gradient(135deg, #020617 0%, #0f172a 48%, #111827 100%);
       position: relative;
-      overflow: hidden;
+      overflow: auto;
     }
 
     .login-shell::before,
