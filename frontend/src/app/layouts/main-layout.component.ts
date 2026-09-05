@@ -1,4 +1,4 @@
-﻿// main-layout.component.ts
+// main-layout.component.ts
 import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
@@ -10,12 +10,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../core/services/auth.service';
 import { ThemeService } from '../core/services/theme.service';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { filter, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
-import { ToastrService } from 'ngx-toastr';
 import { ToastService } from '../core/services/toast.service';
 
 interface Notification {
@@ -42,82 +42,148 @@ interface Notification {
     MatButtonModule,
     MatMenuModule,
     MatBadgeModule,
-    MatDividerModule
+    MatDividerModule,
+    MatTooltipModule
   ],
   template: `
-    <mat-sidenav-container class="sidenav-container">
-      <mat-sidenav 
-        #sidenav 
-        mode="over"
-        [(opened)]="sidenavOpened" 
+    <mat-sidenav-container class="shell-container">
+      <mat-sidenav
+        #sidenav
         class="sidenav"
-        [fixedInViewport]="true"
-        [fixedTopGap]="64">
-        <div class="sidenav-header">
-          <mat-icon class="logo">account_balance</mat-icon>
-          <h2>Banque Ega</h2>
+        [mode]="isMobile ? 'over' : 'side'"
+        [(opened)]="sidenavOpened"
+        [fixedInViewport]="isMobile"
+      >
+        <div class="sidenav-panel">
+          <div class="sidenav-header">
+            <div class="brand-icon">
+              <mat-icon>account_balance</mat-icon>
+            </div>
+            <div class="brand-copy">
+              <span class="brand-name">Banque Ega</span>
+              <span class="brand-subtitle">Back-office bancaire</span>
+            </div>
+          </div>
+
+          <div class="user-summary" *ngIf="currentUser">
+            <div class="user-avatar">{{ getInitials() }}</div>
+            <div class="user-meta">
+              <strong>{{ currentUser?.firstName || currentUser?.username }} {{ currentUser?.lastName || '' }}</strong>
+              <span>{{ currentUser?.role || 'Utilisateur' }}</span>
+            </div>
+          </div>
+
+          <div class="nav-block">
+            <span class="nav-label">Navigation</span>
+            <mat-nav-list>
+              <a mat-list-item *ngIf="isAdmin" routerLink="/dashboard" routerLinkActive="active" (click)="closeMenuOnMobile()">
+                <mat-icon matListItemIcon>dashboard</mat-icon>
+                <span matListItemTitle>Tableau de bord</span>
+              </a>
+
+              <a mat-list-item *ngIf="isAdmin" routerLink="/clients" routerLinkActive="active" (click)="closeMenuOnMobile()">
+                <mat-icon matListItemIcon>people</mat-icon>
+                <span matListItemTitle>Clients</span>
+              </a>
+
+              <a mat-list-item *ngIf="isAdmin" routerLink="/comptes" routerLinkActive="active" (click)="closeMenuOnMobile()">
+                <mat-icon matListItemIcon>account_balance_wallet</mat-icon>
+                <span matListItemTitle>Comptes</span>
+              </a>
+
+              <a mat-list-item routerLink="/transactions" routerLinkActive="active" (click)="closeMenuOnMobile()">
+                <mat-icon matListItemIcon>receipt_long</mat-icon>
+                <span matListItemTitle>Transactions</span>
+              </a>
+
+              <a mat-list-item routerLink="/operations" routerLinkActive="active" (click)="closeMenuOnMobile()">
+                <mat-icon matListItemIcon>swap_horiz</mat-icon>
+                <span matListItemTitle>Opérations</span>
+              </a>
+
+              <mat-divider></mat-divider>
+
+              <a mat-list-item routerLink="/profil" routerLinkActive="active" (click)="closeMenuOnMobile()">
+                <mat-icon matListItemIcon>person</mat-icon>
+                <span matListItemTitle>Profil</span>
+              </a>
+
+              <a mat-list-item *ngIf="isAdmin" routerLink="/parametres" routerLinkActive="active" (click)="closeMenuOnMobile()">
+                <mat-icon matListItemIcon>settings</mat-icon>
+                <span matListItemTitle>Paramètres</span>
+              </a>
+            </mat-nav-list>
+          </div>
+
+          <div class="sidenav-footer">
+            <button mat-stroked-button class="footer-button" routerLink="/profil" (click)="closeMenuOnMobile()">
+              <mat-icon>badge</mat-icon>
+              Mon profil
+            </button>
+            <button mat-button class="footer-button footer-button-ghost" (click)="logout()">
+              <mat-icon>logout</mat-icon>
+              Déconnexion
+            </button>
+          </div>
         </div>
-
-        <mat-nav-list>
-          <a mat-list-item *ngIf="isAdmin" routerLink="/dashboard" routerLinkActive="active" (click)="closeMenuOnMobile()">
-            <mat-icon matListItemIcon>dashboard</mat-icon>
-            <span matListItemTitle>Tableau de bord</span>
-          </a>
-
-          <a mat-list-item *ngIf="isAdmin" routerLink="/clients" routerLinkActive="active" (click)="closeMenuOnMobile()">
-            <mat-icon matListItemIcon>people</mat-icon>
-            <span matListItemTitle>Clients</span>
-          </a>
-
-          <a mat-list-item *ngIf="isAdmin" routerLink="/comptes" routerLinkActive="active" (click)="closeMenuOnMobile()">
-            <mat-icon matListItemIcon>account_balance_wallet</mat-icon>
-            <span matListItemTitle>Comptes</span>
-          </a>
-
-          <a mat-list-item routerLink="/transactions" routerLinkActive="active" (click)="closeMenuOnMobile()">
-            <mat-icon matListItemIcon>receipt_long</mat-icon>
-            <span matListItemTitle>Transactions</span>
-          </a>
-
-          <a mat-list-item routerLink="/operations" routerLinkActive="active" (click)="closeMenuOnMobile()">
-            <mat-icon matListItemIcon>swap_horiz</mat-icon>
-            <span matListItemTitle>Opérations</span>
-          </a>
-
-          <mat-divider></mat-divider>
-
-          <a mat-list-item *ngIf="isAdmin" routerLink="/parametres" routerLinkActive="active" (click)="closeMenuOnMobile()">
-            <mat-icon matListItemIcon>settings</mat-icon>
-            <span matListItemTitle>Paramètres</span>
-          </a>
-        </mat-nav-list>
       </mat-sidenav>
 
       <mat-sidenav-content class="main-content">
-        <mat-toolbar color="primary" class="toolbar">
-          <button mat-icon-button (click)="sidenav.toggle()" aria-label="Toggle menu">
-            <mat-icon>menu</mat-icon>
-          </button>
+        <mat-toolbar class="toolbar">
+          <div class="toolbar-left">
+            <button mat-icon-button class="action-button" (click)="sidenav.toggle()" aria-label="Ouvrir ou fermer le menu">
+              <mat-icon>menu</mat-icon>
+            </button>
 
-          <h1 class="toolbar-title" >{{ currentPageTitle }}</h1>
+            <div class="toolbar-copy">
+              <span class="toolbar-kicker">Banque Ega</span>
+              <h1 class="toolbar-title">{{ currentPageTitle }}</h1>
+              <p class="toolbar-subtitle">{{ currentPageDescription }}</p>
+            </div>
+          </div>
 
-          <span class="toolbar-spacer"></span>
+          <div class="toolbar-right">
+            <div class="toolbar-date hide-mobile">{{ todayLabel }}</div>
 
-          <button mat-icon-button (click)="toggleTheme()" aria-label="Changer le thème">
-            <mat-icon>{{ isLightTheme ? 'dark_mode' : 'light_mode' }}</mat-icon>
-          </button>
+            <button
+              mat-icon-button
+              class="action-button"
+              (click)="toggleTheme()"
+              [matTooltip]="isLightTheme ? 'Activer le thème sombre' : 'Activer le thème clair'"
+              aria-label="Changer le thème"
+            >
+              <mat-icon>{{ isLightTheme ? 'dark_mode' : 'light_mode' }}</mat-icon>
+            </button>
 
-          <button mat-icon-button [matMenuTriggerFor]="notificationMenu" aria-label="Notifications">
-            <mat-icon [matBadge]="unreadCount" [matBadgeHidden]="unreadCount === 0" matBadgeColor="warn">notifications</mat-icon>
-          </button>
+            <button
+              mat-icon-button
+              class="action-button"
+              [matMenuTriggerFor]="notificationMenu"
+              aria-label="Notifications"
+            >
+              <mat-icon [matBadge]="unreadCount" [matBadgeHidden]="unreadCount === 0" matBadgeColor="warn">
+                notifications
+              </mat-icon>
+            </button>
 
-          <button mat-icon-button [matMenuTriggerFor]="userMenu" aria-label="Menu utilisateur">
-            <mat-icon>account_circle</mat-icon>
-          </button>
+            <button
+              mat-stroked-button
+              class="user-trigger"
+              [matMenuTriggerFor]="userMenu"
+              aria-label="Menu utilisateur"
+            >
+              <span class="user-trigger-name hide-mobile">
+                {{ currentUser?.firstName || currentUser?.username || 'Mon compte' }}
+              </span>
+              <span class="user-trigger-avatar">{{ getInitials() }}</span>
+            </button>
+          </div>
         </mat-toolbar>
 
         <div class="content-wrapper">
-          <router-outlet></router-outlet>
+          <div class="content-shell">
+            <router-outlet></router-outlet>
+          </div>
         </div>
       </mat-sidenav-content>
     </mat-sidenav-container>
@@ -200,259 +266,416 @@ interface Notification {
     :host {
       display: block;
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      inset: 0;
     }
 
-    .sidenav-container {
+    .shell-container {
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      margin: 0;
-      padding: 0;
+      inset: 0;
+      background:
+        radial-gradient(circle at top left, rgba(34, 211, 238, 0.08), transparent 22%),
+        linear-gradient(180deg, #020617 0%, #0f172a 100%);
     }
 
     .sidenav {
-      width: 260px;
-      height: 100%;
-      background: #0f172a;
+      width: 294px;
+      border-right: 1px solid rgba(148, 163, 184, 0.14);
+      background: rgba(2, 6, 23, 0.92);
       color: #e2e8f0;
-      overflow-y: auto;
-      overflow-x: hidden;
-      margin: 0;
-      padding: 0;
-      border-right: 1px solid rgba(226, 232, 240, 0.1);
-      border-top-right-radius: 16px;
-      border-bottom-right-radius: 16px;
     }
 
     :host-context(body.light-theme) .sidenav {
-      background: #ffffff;
+      background: rgba(255, 255, 255, 0.92);
       color: #0f172a;
-      border-right: 1px solid rgba(15, 23, 42, 0.1);
+      border-right-color: rgba(148, 163, 184, 0.2);
     }
 
-    @media (max-width: 768px) {
-      .sidenav {
-        width: 240px;
-      }
+    .sidenav-panel {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding: 20px 16px 16px;
+      background:
+        linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(15, 23, 42, 0.92) 100%);
+      backdrop-filter: blur(20px);
+    }
+
+    :host-context(body.light-theme) .sidenav-panel {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.96) 100%);
     }
 
     .sidenav-header {
-      padding: 28px 20px;
-      text-align: center;
-      background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-      color: #ffffff;
-      box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      border-top-right-radius: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 8px 8px 4px;
     }
 
-    :host-context(body.light-theme) .sidenav-header {
-      background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-      box-shadow: 0 2px 8px rgba(14, 165, 233, 0.15);
-    }
-
-    .sidenav-header .logo {
-      font-size: 48px;
+    .brand-icon {
       width: 48px;
       height: 48px;
-      margin-bottom: 8px;
-      color: #ffffff;
+      border-radius: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 60%, #14b8a6 100%);
+      box-shadow: 0 14px 28px rgba(14, 165, 233, 0.22);
+      flex-shrink: 0;
     }
 
-    .sidenav-header h2 {
-      margin: 0;
-      font-size: 20px;
+    .brand-icon mat-icon {
+      color: #f8fafc;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+
+    .brand-copy {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .brand-name {
+      color: #f8fafc;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-subtitle {
+      color: #94a3b8;
+      font-size: 12px;
+    }
+
+    :host-context(body.light-theme) .brand-name {
+      color: #0f172a;
+    }
+
+    :host-context(body.light-theme) .brand-subtitle {
+      color: #64748b;
+    }
+
+    .user-summary {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    :host-context(body.light-theme) .user-summary {
+      background: rgba(14, 165, 233, 0.05);
+      border-color: rgba(14, 165, 233, 0.12);
+    }
+
+    .user-avatar,
+    .user-trigger-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.28), rgba(20, 184, 166, 0.28));
+      color: #e0f2fe;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    :host-context(body.light-theme) .user-avatar,
+    :host-context(body.light-theme) .user-trigger-avatar {
+      color: #075985;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(20, 184, 166, 0.18));
+    }
+
+    .user-meta {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-meta strong {
+      color: #f8fafc;
+      font-size: 14px;
       font-weight: 700;
-      letter-spacing: 0.5px;
-      color: #ffffff;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-meta span {
+      color: #94a3b8;
+      font-size: 12px;
+    }
+
+    :host-context(body.light-theme) .user-meta strong {
+      color: #0f172a;
+    }
+
+    :host-context(body.light-theme) .user-meta span {
+      color: #64748b;
+    }
+
+    .nav-block {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 0;
+      flex: 1;
+    }
+
+    .nav-label {
+      padding: 0 10px;
+      color: #64748b;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
 
     mat-nav-list {
-      padding-top: 12px;
+      padding-top: 0;
     }
 
     mat-nav-list a {
+      margin: 4px 0;
+      border-radius: 16px;
+      min-height: 52px !important;
+      padding: 0 14px !important;
       color: #cbd5e1;
-      margin: 2px 12px;
-      border-radius: 8px;
-      transition: all 0.25s ease;
-      display: flex !important;
-      align-items: center !important;
-      gap: 16px !important;
-      height: 48px !important;
-      padding: 0 16px !important;
       border: 1px solid transparent;
-      font-size: 14px;
-      font-weight: 500;
+      transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
     }
 
     :host-context(body.light-theme) mat-nav-list a {
-      color: #475569;
+      color: #334155;
     }
 
     mat-nav-list a:hover {
-      background: rgba(226, 232, 240, 0.1);
-      color: #e0f2fe;
-      border-color: rgba(226, 232, 240, 0.15);
-      transform: translateX(4px);
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(148, 163, 184, 0.14);
+      transform: translateX(2px);
     }
 
     :host-context(body.light-theme) mat-nav-list a:hover {
       background: rgba(14, 165, 233, 0.08);
-      color: #0284c7;
-      border-color: rgba(14, 165, 233, 0.2);
+      border-color: rgba(14, 165, 233, 0.14);
     }
 
     mat-nav-list a.active {
-      background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-      color: #ffffff;
-      border-color: transparent;
-      box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
-      font-weight: 600;
-      transform: translateX(4px);
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.16), rgba(20, 184, 166, 0.14));
+      color: #f8fafc;
+      border-color: rgba(56, 189, 248, 0.2);
+      box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.06);
     }
 
     :host-context(body.light-theme) mat-nav-list a.active {
-      background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-      color: #ffffff;
-      box-shadow: 0 3px 10px rgba(14, 165, 233, 0.25);
+      color: #0f172a;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.14), rgba(14, 165, 233, 0.08));
+      border-color: rgba(14, 165, 233, 0.16);
     }
 
     mat-nav-list mat-icon {
       color: inherit;
-      font-size: 22px !important;
-      width: 22px !important;
-      height: 22px !important;
-      min-width: 22px !important;
-      min-height: 22px !important;
-      flex-shrink: 0 !important;
+      font-size: 20px !important;
+      width: 20px !important;
+      height: 20px !important;
+      min-width: 20px !important;
+      min-height: 20px !important;
     }
 
     mat-list-item-title {
-      display: block !important;
-      overflow: hidden !important;
-      text-overflow: ellipsis !important;
-      white-space: nowrap !important;
-      flex: 1 !important;
+      font-size: 14px !important;
+      font-weight: 600;
+    }
+
+    mat-divider {
+      margin: 10px 8px;
+      border-color: rgba(148, 163, 184, 0.14);
+    }
+
+    .sidenav-footer {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .footer-button {
+      justify-content: flex-start;
+      min-height: 44px;
+      border-radius: 14px !important;
+    }
+
+    .footer-button-ghost {
+      color: #cbd5e1 !important;
+    }
+
+    :host-context(body.light-theme) .footer-button-ghost {
+      color: #334155 !important;
     }
 
     .main-content {
       display: flex;
-      display: -ms-flexbox;
       flex-direction: column;
-      -ms-flex-direction: column;
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      margin: 0;
-      padding: 0;
+      height: 100%;
       overflow: hidden;
-      background: linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(11, 17, 31, 0.94) 55%, rgba(17, 94, 89, 0.35) 100%);
-      backdrop-filter: blur(8px);
+      background:
+        radial-gradient(circle at top, rgba(34, 211, 238, 0.08), transparent 24%),
+        linear-gradient(180deg, rgba(2, 6, 23, 0.96) 0%, rgba(15, 23, 42, 0.92) 100%);
     }
 
     :host-context(body.light-theme) .main-content {
-      background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 40%, #bae6fd 100%);
-      backdrop-filter: none;
+      background:
+        radial-gradient(circle at top, rgba(14, 165, 233, 0.08), transparent 20%),
+        linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
     }
 
     .toolbar {
       position: sticky;
       top: 0;
       z-index: 100;
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.55), 0 0 0 1px rgba(34, 211, 238, 0.12);
-      flex-shrink: 0;
-      padding: 0 12px;
-      height: 64px;
+      min-height: 76px;
+      padding: 12px 20px;
       display: flex;
       align-items: center;
-      gap: 8px;
-      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(13, 29, 52, 0.95) 60%, rgba(34, 211, 238, 0.16) 100%);
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+      background: rgba(2, 6, 23, 0.7);
+      backdrop-filter: blur(18px);
       color: #e2e8f0;
     }
 
-    @media (max-width: 600px) {
-      .toolbar {
-        padding: 0 8px;
-        height: 56px;
-      }
+    :host-context(body.light-theme) .toolbar {
+      background: rgba(255, 255, 255, 0.72);
+      color: #0f172a;
+      border-bottom-color: rgba(148, 163, 184, 0.18);
+    }
+
+    .toolbar-left,
+    .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .toolbar-left {
+      flex: 1;
+    }
+
+    .toolbar-copy {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .toolbar-kicker {
+      color: #67e8f9;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
 
     .toolbar-title {
-      font-size: 18px;
-      font-weight: 700;
       margin: 0;
-      letter-spacing: 0.6px;
+      color: #f8fafc;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      color: #e0f2fe;
     }
 
-    @media (max-width: 960px) {
-      .toolbar-title {
-        font-size: 16px;
-      }
+    .toolbar-subtitle {
+      margin: 0;
+      color: #94a3b8;
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .toolbar-spacer {
-      flex: 1 1 auto;
-      min-width: 16px;
+    :host-context(body.light-theme) .toolbar-kicker {
+      color: #0284c7;
     }
 
-    .toolbar button {
-      flex-shrink: 0;
+    :host-context(body.light-theme) .toolbar-title {
+      color: #0f172a;
     }
 
-    .toolbar mat-icon {
-      font-size: 22px;
-      width: 22px;
-      height: 22px;
+    :host-context(body.light-theme) .toolbar-subtitle {
+      color: #64748b;
     }
 
-    @media (max-width: 600px) {
-      .toolbar mat-icon {
-        font-size: 20px;
-        width: 20px;
-        height: 20px;
-      }
+    .toolbar-date {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      color: #94a3b8;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: capitalize;
+      white-space: nowrap;
+    }
+
+    :host-context(body.light-theme) .toolbar-date {
+      background: rgba(14, 165, 233, 0.05);
+      color: #475569;
+      border-color: rgba(14, 165, 233, 0.12);
+    }
+
+    .action-button {
+      color: inherit;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(148, 163, 184, 0.1);
+    }
+
+    .user-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 44px;
+      padding: 0 8px 0 14px;
+      border-radius: 999px !important;
+      color: inherit !important;
+      border-color: rgba(148, 163, 184, 0.16) !important;
+      background: rgba(255, 255, 255, 0.04) !important;
+    }
+
+    .user-trigger-name {
+      max-width: 140px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 13px;
+      font-weight: 600;
     }
 
     .content-wrapper {
       flex: 1;
-      overflow-y: auto;
-      overflow-x: hidden;
-      padding: 16px;
-      background: transparent;
-      color: #e2e8f0;
+      overflow: auto;
+      padding: 24px;
     }
 
-    :host-context(body.light-theme) .content-wrapper {
-      color: #0f172a;
+    .content-shell {
+      width: min(1400px, 100%);
+      margin: 0 auto;
     }
 
-    @media (min-width: 769px) {
-      .content-wrapper {
-        padding: 24px;
-      }
-    }
-
-    @media (max-width: 600px) {
-      .content-wrapper {
-        padding: 12px;
-      }
-    }
-
-    /* Notifications Panel */
     ::ng-deep .notification-menu .mat-mdc-menu-panel {
       max-width: 420px !important;
       width: 420px !important;
@@ -481,30 +704,12 @@ interface Notification {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      color: #e2e8f0;
+      color: inherit;
     }
 
-    body.light-theme .notification-header {
-      color: #0f172a;
-    }
-
-    .notification-header h3 {
-      margin: 0;
-      font-size: 18px;
-      font-weight: 700;
-      color: #e2e8f0;
-    }
-
-    body.light-theme .notification-header h3 {
-      color: #0f172a;
-    }
-
-    .notification-header button {
-      color: #7dd3fc;
-    }
-
-    body.light-theme .notification-header button {
-      color: #0284c7;
+    .notification-header h3,
+    .notification-title {
+      color: inherit;
     }
 
     .notification-list {
@@ -519,7 +724,7 @@ interface Notification {
       gap: 12px;
       padding: 16px 20px;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: background 0.2s ease;
       border-left: 3px solid transparent;
       position: relative;
     }
@@ -541,7 +746,7 @@ interface Notification {
     }
 
     .notification-item.unread::before {
-      content: '''';
+      content: '';
       position: absolute;
       left: 0;
       top: 0;
@@ -577,26 +782,9 @@ interface Notification {
       background: rgba(34, 211, 238, 0.1);
     }
 
-    .notification-icon mat-icon {
-      font-size: 22px;
-      width: 22px;
-      height: 22px;
-    }
-
     .notification-content {
       flex: 1;
       min-width: 0;
-    }
-
-    .notification-title {
-      font-weight: 600;
-      font-size: 14px;
-      margin-bottom: 4px;
-      color: #e2e8f0;
-    }
-
-    body.light-theme .notification-title {
-      color: #0f172a;
     }
 
     .notification-message {
@@ -620,10 +808,6 @@ interface Notification {
       color: #94a3b8;
     }
 
-    body.light-theme .notification-time {
-      color: #64748b;
-    }
-
     .notification-delete {
       flex-shrink: 0;
       opacity: 0;
@@ -635,9 +819,6 @@ interface Notification {
     }
 
     .notification-delete mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
       color: #94a3b8;
     }
 
@@ -649,23 +830,6 @@ interface Notification {
       padding: 40px 20px;
       text-align: center;
       color: #94a3b8;
-    }
-
-    body.light-theme .notification-empty {
-      color: #64748b;
-    }
-
-    .notification-empty mat-icon {
-      font-size: 48px;
-      width: 48px;
-      height: 48px;
-      opacity: 0.5;
-      margin-bottom: 8px;
-    }
-
-    .notification-empty p {
-      margin: 0;
-      font-size: 14px;
     }
 
     .notification-footer {
@@ -682,151 +846,119 @@ interface Notification {
       color: #0284c7;
     }
 
-    .notification-footer button mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-      margin-right: 6px;
-    }
-
     .user-menu-header {
-      padding: 16px;
+      padding: 18px;
       display: flex;
       align-items: center;
       gap: 12px;
       min-width: 300px;
-      max-width: 100%;
-      flex-wrap: wrap;
-      color: #e2e8f0;
-    }
-
-    body.light-theme .user-menu-header {
-      color: #0f172a;
+      color: inherit;
     }
 
     .user-menu-header mat-icon {
-      font-size: 40px;
-      width: 40px;
-      height: 40px;
-      min-width: 40px;
-      min-height: 40px;
+      font-size: 38px;
+      width: 38px;
+      height: 38px;
       color: var(--primary);
       flex-shrink: 0;
     }
 
     .user-name {
       font-weight: 700;
-      color: #e2e8f0;
-      white-space: normal;
+      color: inherit;
       word-break: break-word;
-      min-width: 0;
-    }
-
-    body.light-theme .user-name {
-      color: #0f172a;
     }
 
     .user-role {
       font-size: 12px;
       color: #94a3b8;
-      white-space: normal;
       word-break: break-word;
-      width: 100%;
     }
 
-    body.light-theme .user-role {
-      color: #64748b;
-    }
-
-    mat-divider {
-      margin: 8px 12px;
-      border-color: rgba(226, 232, 240, 0.15);
-    }
-
-    :host-context(body.light-theme) mat-divider {
-      border-color: rgba(15, 23, 42, 0.1);
-    }
-
-    /* User menu overlay background (dark) */
-    ::ng-deep .user-menu .mat-mdc-menu-panel {
-      background: rgba(15, 23, 42, 0.96) !important;
-      border: 1px solid rgba(34, 211, 238, 0.2) !important;
-      color: #e2e8f0 !important;
-    }
-
-    /* User menu overlay background (light) */
-    body.light-theme ::ng-deep .user-menu .mat-mdc-menu-panel {
-      background: rgba(255,255,255,0.98) !important;
-      border: 1px solid rgba(2, 132, 199, 0.2) !important;
-      color: #0f172a !important;
-    }
-
+    ::ng-deep .user-menu .mat-mdc-menu-panel,
     ::ng-deep .mat-mdc-menu-panel {
       min-width: 300px !important;
       background: rgba(15, 23, 42, 0.96) !important;
-      border: 1px solid rgba(34, 211, 238, 0.2) !important;
+      border: 1px solid rgba(34, 211, 238, 0.16) !important;
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35) !important;
-      backdrop-filter: blur(12px) !important;
+      backdrop-filter: blur(14px) !important;
       color: #e2e8f0 !important;
+      border-radius: 18px !important;
+    }
+
+    body.light-theme ::ng-deep .user-menu .mat-mdc-menu-panel,
+    body.light-theme ::ng-deep .mat-mdc-menu-panel {
+      background: rgba(255, 255, 255, 0.98) !important;
+      border-color: rgba(14, 165, 233, 0.14) !important;
+      color: #0f172a !important;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12) !important;
     }
 
     ::ng-deep .mat-mdc-menu-item {
       min-height: 48px !important;
       padding: 12px 16px !important;
-      white-space: normal !important;
-      color: #e2e8f0 !important;
-      background: transparent !important;
-      transition: background 0.2s ease, color 0.2s ease;
+      color: inherit !important;
     }
 
-    /* Ensure menu text inside MDC wrappers inherits the intended color */
     ::ng-deep .mat-mdc-menu-item .mdc-list-item__primary-text,
     ::ng-deep .mat-mdc-menu-item .mat-mdc-menu-item-text {
-      color: #e2e8f0 !important;
+      color: inherit !important;
     }
 
     ::ng-deep .mat-mdc-menu-item:hover {
       background: rgba(34, 211, 238, 0.12) !important;
-      color: #e0f2fe !important;
-    }
-
-    ::ng-deep .mat-mdc-menu-item mat-icon {
-      margin-right: 16px !important;
-      color: inherit !important;
-    }
-
-    /* Light theme overrides for menus (placed after dark defaults to win cascade) */
-    body.light-theme ::ng-deep .mat-mdc-menu-panel {
-      background: rgba(255,255,255,0.98) !important;
-      border: 1px solid rgba(2, 132, 199, 0.2) !important;
-      box-shadow: 0 16px 30px rgba(0,0,0,0.12) !important;
-      color: #0f172a !important;
-    }
-
-    body.light-theme ::ng-deep .mat-mdc-menu-item {
-      color: #0f172a !important;
-    }
-
-    body.light-theme ::ng-deep .mat-mdc-menu-item .mdc-list-item__primary-text,
-    body.light-theme ::ng-deep .mat-mdc-menu-item .mat-mdc-menu-item-text {
-      color: #0f172a !important;
     }
 
     body.light-theme ::ng-deep .mat-mdc-menu-item:hover {
       background: rgba(2, 132, 199, 0.08) !important;
-      color: #0c4a6e !important;
     }
 
-    body.light-theme .user-menu-header {
-      color: #0f172a;
+    @media (max-width: 960px) {
+      .toolbar {
+        padding: 12px 14px;
+      }
+
+      .toolbar-date {
+        display: none;
+      }
     }
 
-    body.light-theme .user-name {
-      color: #0f172a;
+    @media (max-width: 768px) {
+      .sidenav {
+        width: 280px;
+      }
+
+      .content-wrapper {
+        padding: 16px;
+      }
+
+      .toolbar-title {
+        font-size: 18px;
+      }
     }
 
-    body.light-theme .user-role {
-      color: #475569;
+    @media (max-width: 600px) {
+      .toolbar {
+        min-height: 68px;
+        align-items: flex-start;
+      }
+
+      .toolbar-left {
+        align-items: flex-start;
+      }
+
+      .toolbar-subtitle {
+        display: none;
+      }
+
+      .user-trigger {
+        min-width: 44px;
+        padding: 0 4px !important;
+      }
+
+      .content-wrapper {
+        padding: 12px;
+      }
     }
   `]
 })
@@ -837,8 +969,14 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   isMobile = false;
   sidenavOpened = true;
   currentPageTitle = 'Banque Ega';
+  currentPageDescription = 'Suivi global de vos opérations bancaires';
   private destroy$ = new Subject<void>();
   isLightTheme = false;
+  todayLabel = new Intl.DateTimeFormat('fr-FR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long'
+  }).format(new Date());
 
   notifications: Notification[] = [
     {
@@ -885,12 +1023,22 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
 
   private routeTitles: { [key: string]: string } = {
     '/dashboard': 'Tableau de bord',
-    '/clients': 'Gestion des Clients',
-    '/comptes': 'Gestion des Comptes',
-    '/transactions': 'Historique des Transactions',
+    '/clients': 'Clients',
+    '/comptes': 'Comptes',
+    '/transactions': 'Transactions',
     '/operations': 'Opérations',
     '/parametres': 'Paramètres',
     '/profil': 'Mon Profil'
+  };
+
+  private routeDescriptions: { [key: string]: string } = {
+    '/dashboard': 'Vue d’ensemble des indicateurs et de l’activité récente',
+    '/clients': 'Gestion du portefeuille client et suivi des profils',
+    '/comptes': 'Pilotage des comptes bancaires et de leurs statuts',
+    '/transactions': 'Lecture et contrôle de l’historique transactionnel',
+    '/operations': 'Exécution des dépôts, retraits et virements',
+    '/parametres': 'Réglages de la plateforme et préférences système',
+    '/profil': 'Informations personnelles et accès utilisateur'
   };
 
   get isAdmin(): boolean {
@@ -903,7 +1051,6 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     private router: Router,
     private breakpointObserver: BreakpointObserver,
     private cdr: ChangeDetectorRef,
-    private toastr: ToastrService,
     private toast: ToastService,
     private theme: ThemeService
   ) {
@@ -911,11 +1058,15 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.authService.currentUser$.subscribe((user: any) => {
-      this.currentUser = user;
-    });
+    this.authService.currentUser$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((user: any) => {
+        this.currentUser = user;
+        this.cdr.markForCheck();
+      });
 
     this.breakpointObserver.observe([Breakpoints.Handset, Breakpoints.Tablet])
+      .pipe(takeUntil(this.destroy$))
       .subscribe(result => {
         this.isMobile = result.matches;
         this.sidenavOpened = !result.matches;
@@ -923,7 +1074,8 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
       });
 
     this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
+      filter(event => event instanceof NavigationEnd),
+      takeUntil(this.destroy$)
     ).subscribe((event: any) => {
       this.updatePageTitle(event.urlAfterRedirects || event.url);
       
@@ -935,10 +1087,12 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     this.updatePageTitle(this.router.url);
     // Thème initial
     this.isLightTheme = this.theme.current === 'light';
-    this.theme.isLight$.subscribe(mode => {
-      this.isLightTheme = this.theme.current === 'light';
-      this.cdr.markForCheck();
-    });
+    this.theme.isLight$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.isLightTheme = this.theme.current === 'light';
+        this.cdr.markForCheck();
+      });
     // Abonnement aux toasts pour créer des notifications correspondantes
     this.toast.events$
       .pipe(takeUntil(this.destroy$))
@@ -970,7 +1124,22 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   private updatePageTitle(url: string): void {
     const path = url.split('?')[0];
     this.currentPageTitle = this.routeTitles[path] || 'Banque Ega';
+    this.currentPageDescription = this.routeDescriptions[path] || 'Suivi global de vos opérations bancaires';
     this.cdr.markForCheck();
+  }
+
+  getInitials(): string {
+    const source = `${this.currentUser?.firstName || ''} ${this.currentUser?.lastName || ''}`.trim()
+      || this.currentUser?.username
+      || 'BE';
+
+    return source
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part: string) => part[0])
+      .join('')
+      .toUpperCase();
   }
 
   closeMenuOnMobile(): void {

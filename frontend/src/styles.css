@@ -1616,3 +1616,116 @@ body.light-theme .mat-mdc-select-placeholder {
   color: #000000 !important;
   background-color: transparent !important;
 }
+
+/* === Senior UI Refresh === */
+:root {
+  --app-shell-dark: #020617;
+  --app-surface-dark: rgba(15, 23, 42, 0.82);
+  --app-surface-dark-strong: rgba(15, 23, 42, 0.94);
+  --app-border-dark: rgba(148, 163, 184, 0.16);
+  --app-shell-light: #f8fafc;
+  --app-surface-light: rgba(255, 255, 255, 0.88);
+  --app-border-light: rgba(148, 163, 184, 0.18);
+  --app-shadow-dark: 0 22px 60px rgba(2, 6, 23, 0.34);
+  --app-shadow-light: 0 18px 45px rgba(15, 23, 42, 0.08);
+}
+
+html,
+body {
+  background:
+    radial-gradient(circle at top left, rgba(34, 211, 238, 0.08), transparent 22%),
+    radial-gradient(circle at bottom right, rgba(20, 184, 166, 0.08), transparent 18%),
+    linear-gradient(180deg, #020617 0%, #0f172a 100%) !important;
+}
+
+body.light-theme {
+  background:
+    radial-gradient(circle at top left, rgba(14, 165, 233, 0.08), transparent 18%),
+    linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%) !important;
+}
+
+body .mat-mdc-card {
+  border-radius: 22px !important;
+  border: 1px solid var(--app-border-dark) !important;
+  background: var(--app-surface-dark) !important;
+  box-shadow: var(--app-shadow-dark) !important;
+  backdrop-filter: blur(18px) !important;
+}
+
+body.light-theme .mat-mdc-card {
+  border-color: var(--app-border-light) !important;
+  background: var(--app-surface-light) !important;
+  box-shadow: var(--app-shadow-light) !important;
+}
+
+body .mat-mdc-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 26px 65px rgba(2, 6, 23, 0.38) !important;
+  border-color: rgba(56, 189, 248, 0.2) !important;
+}
+
+body.light-theme .mat-mdc-card:hover {
+  box-shadow: 0 20px 48px rgba(15, 23, 42, 0.1) !important;
+  border-color: rgba(14, 165, 233, 0.18) !important;
+}
+
+body .mat-mdc-raised-button,
+body .mat-mdc-stroked-button,
+body .mat-mdc-button {
+  min-height: 42px;
+  border-radius: 14px !important;
+}
+
+body .mat-mdc-raised-button.mat-primary {
+  background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 55%, #14b8a6 100%) !important;
+  color: #082f49 !important;
+  box-shadow: 0 14px 28px rgba(14, 165, 233, 0.2) !important;
+}
+
+body .mat-mdc-raised-button.mat-primary:hover {
+  box-shadow: 0 18px 34px rgba(14, 165, 233, 0.24) !important;
+}
+
+body .mat-mdc-stroked-button {
+  border-color: rgba(148, 163, 184, 0.18) !important;
+}
+
+body .mat-mdc-form-field .mat-mdc-text-field-wrapper,
+body .mat-mdc-select {
+  border-radius: 16px !important;
+}
+
+body .mat-mdc-table {
+  border-radius: 22px !important;
+  overflow: hidden !important;
+  border: 1px solid var(--app-border-dark) !important;
+  box-shadow: var(--app-shadow-dark) !important;
+}
+
+body.light-theme .mat-mdc-table {
+  border-color: var(--app-border-light) !important;
+  box-shadow: var(--app-shadow-light) !important;
+}
+
+body .mat-mdc-tab-group {
+  border-radius: 22px !important;
+  border: 1px solid var(--app-border-dark) !important;
+  box-shadow: var(--app-shadow-dark) !important;
+}
+
+body.light-theme .mat-mdc-tab-group {
+  border-color: var(--app-border-light) !important;
+  box-shadow: var(--app-shadow-light) !important;
+}
+
+.content-wrapper > * {
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  body .mat-mdc-card,
+  body .mat-mdc-tab-group,
+  body .mat-mdc-table {
+    border-radius: 18px !important;
+  }
+}

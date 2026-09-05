@@ -28,24 +28,47 @@ import { ToastrService } from 'ngx-toastr';
     MatProgressSpinnerModule
   ],
   template: `
-    <div class="login-container">
-      <div class="login-card-wrapper">
-        <mat-card class="login-card">
-          <mat-card-header>
-            <div class="header-content">
-              <div class="logo">
-                <mat-icon>account_balance</mat-icon>
-              </div>
-              <h1>Banque Ega</h1>
-              <p>Connexion sécurisée</p>
+    <div class="login-shell">
+      <div class="login-grid">
+        <section class="login-aside">
+          
+
+          <div class="aside-copy">
+            <span class="eyebrow">Banque Ega</span>
+            <h1>Une interface de banque plus nette, plus fiable, plus pro.</h1>
+            <p>
+              Connectez-vous à votre espace sécurisé pour piloter les comptes, les clients
+              et les opérations depuis une interface claire et orientée métier.
+            </p>
+          </div>
+
+          <div class="trust-panel">
+            <div class="trust-item">
+              <strong>Suivi centralisé</strong>
+              <span>Clients, comptes et transactions réunis au même endroit.</span>
             </div>
-          </mat-card-header>
+            <div class="trust-item">
+              <strong>Contrôle sécurisé</strong>
+              <span>Accès authentifié et navigation adaptée au rôle utilisateur.</span>
+            </div>
+            <div class="trust-item">
+              <strong>Exécution rapide</strong>
+              <span>Déposer, retirer et virer sans friction inutile dans le parcours.</span>
+            </div>
+          </div>
+        </section>
+
+        <mat-card class="login-card">
+          <div class="card-header">
+            <span class="card-badge">Espace sécurisé</span>
+            <h2>Connexion</h2>
+            <p>Renseignez vos identifiants pour accéder au back-office.</p>
+          </div>
 
           <mat-card-content>
             <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
               <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Nom d'utilisateur</mat-label>
-                <input matInput formControlName="username" placeholder="admin" required>
+                <input matInput formControlName="username" placeholder="Votre identifiant" required>
                 <mat-icon matPrefix>person</mat-icon>
                 <mat-error *ngIf="loginForm.get('username')?.hasError('required')">
                   Le nom d'utilisateur est requis
@@ -53,13 +76,22 @@ import { ToastrService } from 'ngx-toastr';
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Mot de passe</mat-label>
-                <input matInput [type]="hidePassword ? 'password' : 'text'" 
-                       formControlName="password" placeholder="admin123" required>
+                <input
+                  matInput
+                  [type]="hidePassword ? 'password' : 'text'"
+                  formControlName="password"
+                  placeholder="Votre mot de passe"
+                  required
+                >
                 <mat-icon matPrefix>lock</mat-icon>
-                <button mat-icon-button matSuffix type="button"
-                        (click)="hidePassword = !hidePassword">
-                  <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+                <button
+                  mat-icon-button
+                  matSuffix
+                  type="button"
+                  (click)="hidePassword = !hidePassword"
+                  [attr.aria-label]="hidePassword ? 'Afficher le mot de passe' : 'Masquer le mot de passe'"
+                >
+                  <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
                 </button>
                 <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
                   Le mot de passe est requis
@@ -70,280 +102,284 @@ import { ToastrService } from 'ngx-toastr';
                 <mat-checkbox formControlName="rememberMe">
                   Se souvenir de moi
                 </mat-checkbox>
-                <a href="#" class="forgot-password">Mot de passe oublié ?</a>
+                <button type="button" class="forgot-password" (click)="showPasswordHelp()">
+                  Besoin d'aide ?
+                </button>
               </div>
 
-              <button mat-raised-button color="primary" type="submit" 
-                      class="full-width login-button"
-                      [disabled]="!loginForm.valid || isLoading">
+              <button
+                mat-raised-button
+                color="primary"
+                type="submit"
+                class="full-width login-button"
+                [disabled]="!loginForm.valid || isLoading"
+              >
                 <mat-spinner diameter="18" strokeWidth="3" *ngIf="isLoading"></mat-spinner>
-                <span>{{ isLoading ? 'Connexion...' : 'Se connecter' }}</span>
+                <span>{{ isLoading ? 'Connexion en cours...' : 'Accéder au tableau de bord' }}</span>
               </button>
             </form>
           </mat-card-content>
+
+          <div class="card-footer">
+            <span class="status-dot"></span>
+            <span>Authentification sécurisée et session contrôlée</span>
+          </div>
         </mat-card>
       </div>
     </div>
   `,
   styles: [`
-    @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-20px); }
+    :host {
+      display: block;
+      min-height: 100vh;
     }
 
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes shimmer {
-      0% { background-position: -1000px 0; }
-      100% { background-position: 1000px 0; }
-    }
-
-    @keyframes slideDiagonal {
-      from { background-position: 0 0, 0 0; }
-      to { background-position: 320px 320px, -320px -320px; }
-    }
-
-    .login-container {
+    .login-shell {
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #0f172a 0%, #0b2a36 45%, #0f766e 100%);
-      background-size: 220% 220%;
-      animation: gradient 18s ease infinite;
-      padding: 20px;
+      padding: 32px;
+      background:
+        radial-gradient(circle at top left, rgba(34, 211, 238, 0.16), transparent 32%),
+        radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.14), transparent 28%),
+        linear-gradient(135deg, #020617 0%, #0f172a 48%, #111827 100%);
       position: relative;
       overflow: hidden;
     }
 
-    .login-container::before {
+    .login-shell::before,
+    .login-shell::after {
       content: '';
       position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
-      animation: float 8s ease-in-out infinite;
-    }
-
-    .login-container::after {
-      content: '';
-      position: absolute;
-      inset: -20%;
-      background:
-        repeating-linear-gradient(120deg, rgba(34,211,238,0.08) 0 12px, transparent 12px 32px),
-        repeating-linear-gradient(300deg, rgba(16,185,129,0.07) 0 10px, transparent 10px 28px);
-      animation: slideDiagonal 18s linear infinite;
-      opacity: 0.75;
+      border-radius: 999px;
+      filter: blur(80px);
+      opacity: 0.5;
       pointer-events: none;
-      z-index: 0;
     }
 
-    @keyframes gradient {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+    .login-shell::before {
+      width: 320px;
+      height: 320px;
+      top: -80px;
+      left: -60px;
+      background: rgba(14, 165, 233, 0.22);
     }
 
-    .login-card-wrapper {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      max-width: 450px;
-      width: 100%;
-      animation: fadeInUp 0.6s ease-out;
+    .login-shell::after {
+      width: 360px;
+      height: 360px;
+      right: -120px;
+      bottom: -120px;
+      background: rgba(20, 184, 166, 0.18);
+    }
+
+    .login-grid {
       position: relative;
       z-index: 1;
+      width: min(1120px, 100%);
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(380px, 460px);
+      gap: 28px;
+      align-items: stretch;
     }
 
+    .login-aside,
     .login-card {
-      padding: 32px;
-      border-radius: 16px;
-      box-shadow: 0 25px 80px rgba(15,23,42,0.65), 0 0 60px rgba(14,165,233,0.25);
-      backdrop-filter: blur(12px);
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid rgba(34, 211, 238, 0.2);
-      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-      width: 100%;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      background: rgba(15, 23, 42, 0.82);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 24px 70px rgba(2, 6, 23, 0.45);
+    }
+
+    .login-aside {
+      border-radius: 28px;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 60px;
       color: #e2e8f0;
     }
 
-    .login-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 30px 90px rgba(15,23,42,0.7), 0 0 120px rgba(34, 211, 238, 0.35);
-      border-color: rgba(34, 211, 238, 0.35);
-    }
-
-    .header-content {
-      text-align: center;
-      width: 100%;
-      margin-bottom: 24px;
-      animation: fadeInUp 0.8s ease-out 0.2s both;
-    }
-
-    .logo {
+    .brand-mark {
+      width: 72px;
+      height: 72px;
+      border-radius: 22px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #22d3ee 0%, #0ea5e9 50%, #14b8a6 100%);
-      margin-bottom: 12px;
-      box-shadow: 0 10px 30px rgba(34, 211, 238, 0.35);
-      position: relative;
-      transition: transform 0.3s ease;
+      background: linear-gradient(135deg, #22d3ee 0%, #0ea5e9 45%, #14b8a6 100%);
+      box-shadow: 0 18px 40px rgba(14, 165, 233, 0.28);
     }
 
-    .logo::before {
-      content: '';
-      position: absolute;
-      inset: -3px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #22d3ee, #0ea5e9, #14b8a6);
-      z-index: -1;
-      opacity: 0;
-      transition: opacity 0.3s ease;
+    .brand-mark mat-icon {
+      width: 34px;
+      height: 34px;
+      font-size: 34px;
+      color: #f8fafc;
     }
 
-    .logo:hover::before {
-      opacity: 1;
-      animation: shimmer 2s infinite;
+    .aside-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-width: 560px;
+      margin-top: -9px;
     }
 
-    .logo:hover {
-      transform: scale(1.1) rotate(5deg);
+    .eyebrow {
+      display: inline-flex;
+      align-self: flex-start;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(34, 211, 238, 0.12);
+      border: 1px solid rgba(34, 211, 238, 0.18);
+      color: #67e8f9;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
 
-    .logo mat-icon {
-      font-size: 36px;
-      width: 36px;
-      height: 36px;
-      color: white;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
-    }
-
-    h1 {
-      font-size: 24px;
-      font-weight: 800;
-      background: linear-gradient(135deg, #22d3ee 0%, #34d399 50%, #0ea5e9 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin: 0 0 6px 0;
-      letter-spacing: -0.5px;
-    }
-
-    p {
-      color: #cbd5e1;
+    .aside-copy h1 {
       margin: 0;
+      color: #f8fafc;
+      font-size: clamp(30px, 4vw, 46px);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+    }
+
+    .aside-copy p {
+      margin: 0;
+      max-width: 560px;
+      color: #cbd5e1;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    .trust-panel {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: -30px;
+    }
+
+    .trust-item {
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .trust-item strong {
+      color: #f8fafc;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .trust-item span {
+      color: #94a3b8;
       font-size: 13px;
-      font-weight: 500;
+      line-height: 1.6;
+    }
+
+    .login-card {
+      border-radius: 28px;
+      padding: 34px 32px;
+      color: #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .card-header {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card-badge {
+      display: inline-flex;
+      align-self: flex-start;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(15, 118, 110, 0.18);
+      border: 1px solid rgba(45, 212, 191, 0.18);
+      color: #99f6e4;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    .card-header h2 {
+      margin: 0;
+      color: #f8fafc;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .card-header p {
+      margin: 0;
+      color: #94a3b8;
+      font-size: 14px;
+      line-height: 1.6;
     }
 
     mat-card-content {
-      padding: 20px 0;
-      animation: fadeInUp 1s ease-out 0.4s both;
+      padding: 0;
     }
 
     form {
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 16px;
     }
 
     .full-width {
       width: 100%;
     }
 
-    ::ng-deep .mat-mdc-form-field {
-      transition: transform 0.2s ease;
-    }
-
-    ::ng-deep .mat-mdc-form-field:focus-within {
-      transform: translateY(-2px);
-    }
-
-    ::ng-deep .mat-mdc-text-field-wrapper {
-      transition: all 0.3s ease;
+    ::ng-deep .mat-mdc-form-field .mat-mdc-text-field-wrapper {
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 16px;
+      box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.08);
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
     }
 
     ::ng-deep .mat-mdc-form-field:focus-within .mat-mdc-text-field-wrapper {
-      box-shadow: 0 4px 14px rgba(14, 165, 233, 0.25);
-      border-color: rgba(34, 211, 238, 0.5);
+      transform: translateY(-1px);
+      box-shadow:
+        inset 0 0 0 1px rgba(14, 165, 233, 0.26),
+        0 10px 24px rgba(14, 165, 233, 0.12);
     }
 
-    ::ng-deep .mat-mdc-form-field .mat-mdc-text-field-wrapper {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 10px;
-      padding-top: 0 !important;
-      padding-bottom: 0 !important;
+    ::ng-deep .mat-mdc-form-field .mat-mdc-input-element,
+    :host-context(body.light-theme) ::ng-deep .mat-mdc-form-field .mat-mdc-input-element,
+    :host-context(body:not(.light-theme)) ::ng-deep .mat-mdc-form-field .mat-mdc-input-element {
+      color: #0f172a !important;
+      caret-color: #0f172a !important;
+      -webkit-text-fill-color: #0f172a !important;
+      font-size: 14px !important;
+    }
+
+    :host ::ng-deep input.mat-mdc-input-element:-webkit-autofill {
+      -webkit-text-fill-color: #0f172a !important;
+      caret-color: #0f172a !important;
     }
 
     ::ng-deep .mat-mdc-form-field .mat-mdc-form-field-label {
-      color: #94a3b8 !important;
-      font-size: 14px !important;
-      top: 16px !important;
+      color: #64748b !important;
     }
 
     ::ng-deep .mat-mdc-form-field.mat-focused .mat-mdc-form-field-label,
     ::ng-deep .mat-mdc-form-field .mdc-floating-label--float-above {
-      top: 8px !important;
-      font-size: 12px !important;
-      color: #0ea5e9 !important;
-    }
-
-    ::ng-deep .mat-mdc-form-field .mat-mdc-input-element {
-      color: #000000 !important;
-      font-size: 14px !important;
-      padding-top: 12px !important;
-      padding-bottom: 8px !important;
-    }
-
-    /* Force black input text regardless of theme */
-    :host-context(body.light-theme) ::ng-deep .mat-mdc-form-field .mat-mdc-input-element,
-    :host-context(body:not(.light-theme)) ::ng-deep .mat-mdc-form-field .mat-mdc-input-element {
-      color: #000000 !important;
-      caret-color: #000000 !important;
-      -webkit-text-fill-color: #000000 !important;
-    }
-
-    /* Ensure autofill keeps black text */
-    :host ::ng-deep input.mat-mdc-input-element:-webkit-autofill {
-      -webkit-text-fill-color: #000000 !important;
-      caret-color: #000000 !important;
-    }
-
-    ::ng-deep .mat-mdc-form-field .mat-mdc-input-element::placeholder {
-      color: #cbd5e1 !important;
-      opacity: 0 !important;
-    }
-
-    ::ng-deep .mat-mdc-form-field.mat-focused .mat-mdc-input-element::placeholder {
-      opacity: 0.6 !important;
-    }
-
-    ::ng-deep .mat-mdc-form-field .mat-mdc-notched-outline .mdc-notched-outline__leading,
-    ::ng-deep .mat-mdc-form-field .mat-mdc-notched-outline .mdc-notched-outline__notch,
-    ::ng-deep .mat-mdc-form-field .mat-mdc-notched-outline .mdc-notched-outline__trailing {
-      border-color: rgba(148, 163, 184, 0.5) !important;
-    }
-
-    ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
-    ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
-    ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
-      border-color: rgba(34, 211, 238, 0.8) !important;
-      border-width: 2px !important;
+      color: #0284c7 !important;
     }
 
     ::ng-deep .mat-mdc-form-field .mat-icon {
@@ -351,11 +387,20 @@ import { ToastrService } from 'ngx-toastr';
     }
 
     ::ng-deep .mat-mdc-form-field.mat-focused .mat-icon {
-      color: #22d3ee !important;
+      color: #0284c7 !important;
     }
 
-    ::ng-deep .mat-mdc-checkbox .mdc-label {
-      color: #cbd5e1 !important;
+    ::ng-deep .mat-mdc-form-field .mdc-notched-outline__leading,
+    ::ng-deep .mat-mdc-form-field .mdc-notched-outline__notch,
+    ::ng-deep .mat-mdc-form-field .mdc-notched-outline__trailing {
+      border-color: rgba(148, 163, 184, 0.42) !important;
+    }
+
+    ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+    ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
+    ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
+      border-color: rgba(2, 132, 199, 0.64) !important;
+      border-width: 2px !important;
     }
 
     .form-options {
@@ -363,123 +408,132 @@ import { ToastrService } from 'ngx-toastr';
       justify-content: space-between;
       align-items: center;
       gap: 12px;
-      margin: 6px 0 12px 0;
-      flex-wrap: nowrap;
-    }
-
-    ::ng-deep .mat-mdc-checkbox {
-      flex-shrink: 0;
+      flex-wrap: wrap;
+      margin-top: -2px;
     }
 
     ::ng-deep .mat-mdc-checkbox .mdc-label {
       color: #cbd5e1 !important;
       font-size: 13px !important;
-      white-space: nowrap;
-    }
-
-    .forgot-password::after {
-      content: '';
-      position: absolute;
-      width: 0;
-      height: 2px;
-      bottom: -2px;
-      left: 0;
-      background: linear-gradient(90deg, #22d3ee, #34d399);
-      transition: width 0.3s ease;
-    }
-
-    .forgot-password:hover {
-      color: #34d399;
-    }
-
-    .forgot-password:hover::after {
-      width: 100%;
-    }
-
-    .login-button {
-      height: 44px;
-      font-size: 14px;
-      font-weight: 700;
-      margin-top: 12px;
-      background: linear-gradient(135deg, #22d3ee 0%, #0ea5e9 45%, #14b8a6 100%) !important;
-      border-radius: 10px !important;
-      box-shadow: 0 10px 24px rgba(34, 211, 238, 0.35);
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-      letter-spacing: 0.5px;
-      color: #0b1220;
-      width: 100% !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      gap: 8px !important;
-    }
-
-    .login-button::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-      transition: left 0.5s ease;
-    }
-
-    .login-button:hover::before {
-      left: 100%;
-    }
-
-    .login-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 14px 30px rgba(34, 211, 238, 0.45);
-    }
-
-    .login-button:active {
-      transform: translateY(0);
-    }
-
-    .login-button mat-spinner {
-      display: inline-block;
-      margin-right: 8px;
     }
 
     ::ng-deep .mat-mdc-checkbox .mdc-checkbox__background {
-      border-color: #22d3ee !important;
+      border-color: #38bdf8 !important;
     }
 
     ::ng-deep .mat-mdc-checkbox.mat-mdc-checkbox-checked .mdc-checkbox__background {
-      background-color: #22d3ee !important;
+      background-color: #38bdf8 !important;
+      border-color: #38bdf8 !important;
     }
 
-    @media (max-width: 600px) {
-      .login-container {
-        padding: 16px;
+    .forgot-password {
+      border: none;
+      background: transparent;
+      color: #7dd3fc;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+
+    .forgot-password:hover {
+      color: #bae6fd;
+    }
+
+    .login-button {
+      min-height: 52px;
+      margin-top: 8px;
+      border-radius: 16px !important;
+      background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 55%, #14b8a6 100%) !important;
+      color: #082f49 !important;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      box-shadow: 0 18px 35px rgba(14, 165, 233, 0.22);
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 10px !important;
+    }
+
+    .login-button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 22px 40px rgba(14, 165, 233, 0.28);
+    }
+
+    .login-button:disabled {
+      opacity: 0.65;
+      box-shadow: none;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(148, 163, 184, 0.14);
+      color: #94a3b8;
+      font-size: 12px;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #34d399;
+      box-shadow: 0 0 0 6px rgba(52, 211, 153, 0.14);
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 1080px) {
+      .login-grid {
+        grid-template-columns: 1fr;
       }
 
+      .trust-panel {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .login-shell {
+        padding: 18px;
+      }
+
+      .login-aside,
       .login-card {
-        padding: 28px 20px;
+        padding: 24px 20px;
+        border-radius: 22px;
       }
 
-      .logo {
-        width: 52px;
-        height: 52px;
+      .aside-copy h1 {
+        font-size: 32px;
       }
 
-      .logo mat-icon {
-        font-size: 28px;
+      .card-header h2 {
+        font-size: 24px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .login-aside {
+        gap: 24px;
+      }
+
+      .brand-mark {
+        width: 60px;
+        height: 60px;
+      }
+
+      .brand-mark mat-icon {
         width: 28px;
         height: 28px;
+        font-size: 28px;
       }
 
-      h1 {
-        font-size: 20px;
-      }
-
-      .login-button {
-        height: 40px;
-        font-size: 13px;
+      .form-options {
+        align-items: flex-start;
+        flex-direction: column;
       }
     }
   `]
@@ -527,5 +581,12 @@ export class LoginComponent implements OnInit {
         }
       });
     }
+  }
+
+  showPasswordHelp(): void {
+    this.toastr.info(
+      'Contactez un administrateur pour réinitialiser votre accès.',
+      'Assistance connexion'
+    );
   }
 }
