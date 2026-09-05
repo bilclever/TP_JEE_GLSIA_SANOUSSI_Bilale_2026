@@ -141,7 +141,8 @@ import { ToastrService } from 'ngx-toastr';
         radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.14), transparent 28%),
         linear-gradient(135deg, #020617 0%, #0f172a 48%, #111827 100%);
       position: relative;
-      overflow: auto;
+      overflow-y: auto;
+      overflow-x: hidden;
     }
 
     .login-shell::before,
